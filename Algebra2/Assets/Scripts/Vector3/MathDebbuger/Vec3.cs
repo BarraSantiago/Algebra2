@@ -36,7 +36,7 @@ namespace CustomMath
 
         public float magnitude
         {
-            get { return Mathf.Sqrt(sqrMagnitude); }
+            get { return Mathf.Sqrt(x * x + y * y + z * z); }
         }
 
         #endregion
