@@ -18,7 +18,7 @@ namespace CustomMath
             get { return x * x + y * y + z * z; }
         }
 
-        public Vector3 normalized
+        public Vec3 normalized
         {
             get
             {
@@ -27,10 +27,10 @@ namespace CustomMath
                 
                 if (mag > 0)
                 {
-                    return new Vector3(x / mag, y / mag, z / mag);
+                    return new Vec3(x / mag, y / mag, z / mag);
                 }
                 
-                return new Vector3(0, 0, 0);
+                return new Vec3(0, 0, 0);
             }
         }
 
@@ -195,7 +195,7 @@ namespace CustomMath
 
         public static implicit operator Vector2(Vec3 v2)
         {
-            return new Vector3(v2.x, v2.y, 0.0f);
+            return new Vector2(v2.x, v2.y);
         }
         
         #endregion
