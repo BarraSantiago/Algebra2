@@ -76,7 +76,7 @@ public class MyPlane : MonoBehaviour
     /// <summary>
     ///   <para>Returns a copy of the plane that faces in the opposite direction.</para>
     /// </summary>
-    public Plane flipped;
+    public MyPlane flipped;
 
     /// <summary>
     ///   <para>Moves the plane in space by the translation vector.</para>

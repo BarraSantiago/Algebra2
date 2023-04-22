@@ -152,10 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 642327099, guid: c92e451d45320bd4c96530785c52fa64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ejercicio: 3
+  ejercicio: 9
   vectorColor: {r: 1, g: 0, b: 0, a: 1}
-  a: {x: 1, y: 1, z: 1}
-  b: {x: 1, y: 0, z: 1}
+  a: {x: 1, y: 2, z: 3}
+  b: {x: 4, y: 5, z: 6}
 --- !u!4 &354293884
 Transform:
   m_ObjectHideFlags: 0
@@ -388,10 +388,10 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1085959914}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1762407894bbb7b4cabca1341eccea18, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  aVector3: {x: 1, y: 1, z: 1}
-  bVector3: {x: 1, y: 0, z: 1}
+  aVector3: {x: 1, y: 2, z: 3}
+  bVector3: {x: 4, y: 5, z: 6}
