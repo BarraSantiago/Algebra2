@@ -153,10 +153,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delta: 0.1
-  meshSize: 10
+  meshSize: 5
   axisSteps: 0
   pointPrefab: {fileID: 355632860}
   particleSystemPrefab: {fileID: 1738517259}
+  batchSize: 25
 --- !u!4 &277535299
 Transform:
   m_ObjectHideFlags: 0
@@ -210,7 +211,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 733676f706bebf34eba7d9c9329785a4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -447,7 +448,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1738517257}
   serializedVersion: 8
-  lengthInSec: 0.05
+  lengthInSec: 10000
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0

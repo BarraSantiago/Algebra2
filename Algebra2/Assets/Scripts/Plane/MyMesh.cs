@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using CustomMath;
+using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Plane
@@ -10,21 +13,22 @@ namespace Plane
         private List<Vec3> theMesh = new List<Vec3>();
         private Vec3[,,] theMesh2;
 
-        public float delta;
-        public float meshSize;
-        public int axisSteps;
+        [SerializeField] private float delta;
+        [SerializeField] private float meshSize;
+        [SerializeField] private int axisSteps;
 
-        public GameObject pointPrefab;
+        [SerializeField] private GameObject pointPrefab;
 
-        public ParticleSystem particleSystemPrefab;
-        
+        [SerializeField] private ParticleSystem particleSystemPrefab;
+        [SerializeField] private int batchSize = 5;
+
         private void Start()
         {
             axisSteps = Mathf.RoundToInt(meshSize / delta);
             theMesh2 = new Vec3[axisSteps, axisSteps, axisSteps];
             CreateMesh();
             DrawMesh();
-            DrawMeshParticles();
+            //DrawMeshParticles();
         }
 
         private void OnDrawGizmos()
@@ -44,7 +48,6 @@ namespace Plane
                         float zCoord = z * delta;
                         Vec3 point = new Vec3(xCoord, yCoord, zCoord);
                         theMesh2[x, y, z] = point;
-                        //theMesh.Add(point);
                     }
                 }
             }
@@ -53,9 +56,25 @@ namespace Plane
 
         private void DrawMesh()
         {
-            foreach (Vec3 vector in theMesh2)
+            StartCoroutine(DrawMeshCoroutine());
+        }
+
+        private IEnumerator DrawMeshCoroutine()
+        {
+            for (int x = 0; x < axisSteps; x++)
             {
-                Instantiate(pointPrefab, vector, Quaternion.identity);
+                for (int y = 0; y < axisSteps; y++)
+                {
+                    for (int z = 0; z < axisSteps; z++)
+                    {
+                        if (z % batchSize == 0 && z > 0)
+                        {
+                            yield return null;
+                        }
+
+                        Instantiate(pointPrefab, theMesh2[x, y, z], Quaternion.identity);
+                    }
+                }
             }
         }
 
