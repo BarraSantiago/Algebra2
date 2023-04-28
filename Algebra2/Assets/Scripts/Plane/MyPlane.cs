@@ -4,20 +4,27 @@ using UnityEngine;
 
 public class MyPlane : MonoBehaviour
 {
-    internal const int size = 16;
     private Vector3 m_Normal;
     private float m_Distance;
-    
+
     /// <summary>
     ///   <para>Normal vector of the plane.</para>
     /// </summary>
-    //public Vector3 normal { }
+    public Vector3 normal
+    {
+        get => m_Normal;
+        set => m_Normal = value;
+    }
 
-    
+
     /// <summary>
     ///   <para>The distance measured from the Plane to the origin, along the Plane's normal.</para>
     /// </summary>
-    //public float distance { }
+    public float distance
+    {
+        get => m_Distance;
+        set => m_Distance = value;
+    }
 
     /// <summary>
     ///   <para>Creates a plane.</para>
@@ -26,6 +33,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="inPoint"></param>
     public MyPlane(Vector3 inNormal, Vector3 inPoint)
     {
+        m_Normal = inNormal.normalized;
+        m_Distance = -Vector3.Dot(m_Normal, inPoint);
     }
 
     /// <summary>
@@ -35,6 +44,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="d"></param>
     public MyPlane(Vector3 inNormal, float d)
     {
+        m_Normal = inNormal.normalized;
+        m_Distance = -d;
     }
 
     /// <summary>
@@ -45,6 +56,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="c"></param>
     public MyPlane(Vector3 a, Vector3 b, Vector3 c)
     {
+        m_Normal = Vector3.Cross(b - a, c - a).normalized;
+        m_Distance = -Vector3.Dot(m_Normal, a);
     }
 
     /// <summary>
@@ -54,6 +67,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="inPoint">A point that lies on the plane.</param>
     public void SetNormalAndPosition(Vector3 inNormal, Vector3 inPoint)
     {
+        m_Normal = inNormal.normalized;
+        m_Distance = -Vector3.Dot(inNormal, inPoint);
     }
 
     /// <summary>
@@ -64,6 +79,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="c">Third point in clockwise order.</param>
     public void Set3Points(Vector3 a, Vector3 b, Vector3 c)
     {
+        m_Normal = Vector3.Normalize(Vector3.Cross(b - a, c - a));
+        m_Distance = -Vector3.Dot(m_Normal, a);
     }
 
     /// <summary>
@@ -71,12 +88,17 @@ public class MyPlane : MonoBehaviour
     /// </summary>
     public void Flip()
     {
+        m_Normal = -m_Normal;
+        m_Distance = -m_Distance;
     }
 
     /// <summary>
     ///   <para>Returns a copy of the plane that faces in the opposite direction.</para>
     /// </summary>
-    public MyPlane flipped;
+    public MyPlane flipped
+    {
+        get { return new MyPlane(-m_Normal, -m_Distance); }
+    }
 
     /// <summary>
     ///   <para>Moves the plane in space by the translation vector.</para>
@@ -95,12 +117,12 @@ public class MyPlane : MonoBehaviour
     /// <returns>
     ///   <para>The translated plane.</para>
     /// </returns>
-    /*
-    public static Plane Translate(Plane plane, Vector3 translation)
+    public static MyPlane Translate(MyPlane plane, Vector3 translation)
     {
-        return new Plane(, plane.m_Distance + Vector3.Dot(m_Normal, translation));
+        plane.Translate(translation);
+        return plane;
     }
-    */
+
     /// <summary>
     ///   <para>For a given point returns the closest point on the plane.</para>
     /// </summary>
@@ -108,22 +130,29 @@ public class MyPlane : MonoBehaviour
     /// <returns>
     ///   <para>A point on the plane that is closest to point.</para>
     /// </returns>
-   /*
     public Vector3 ClosestPointOnPlane(Vector3 point)
     {
+        float dist = Vector3.Dot(m_Normal, point) + m_Distance;
+        return point - m_Normal * dist;
     }
 
     /// <summary>
     ///   <para>Returns a signed distance from plane to point.</para>
     /// </summary>
     /// <param name="point"></param>
-    public float GetDistanceToPoint(Vector3 point);
+    public float GetDistanceToPoint(Vector3 point)
+    {
+        return Vector3.Dot(m_Normal, point) + m_Distance;
+    }
 
     /// <summary>
     ///   <para>Is a point on the positive side of the plane?</para>
     /// </summary>
     /// <param name="point"></param>
-    public bool GetSide(Vector3 point);
+    public bool GetSide(Vector3 point)
+    {
+        return Vector3.Dot(m_Normal, point) + m_Distance > 0;
+    }
 
     /// <summary>
     ///   <para>Are two points on the same side of the plane?</para>
@@ -132,10 +161,8 @@ public class MyPlane : MonoBehaviour
     /// <param name="inPt1"></param>
     public bool SameSide(Vector3 inPt0, Vector3 inPt1)
     {
+        float d0 = Vector3.Dot(m_Normal, inPt0) + m_Distance;
+        float d1 = Vector3.Dot(m_Normal, inPt1) + m_Distance;
+        return (d0 > 0 && d1 > 0) || (d0 <= 0 && d1 <= 0);
     }
-
-    public bool Raycast(Ray ray, out float enter)
-    {
-    }
-    */
 }
