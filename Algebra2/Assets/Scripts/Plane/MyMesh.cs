@@ -10,8 +10,7 @@ namespace Plane
 {
     public class MyMesh : MonoBehaviour
     {
-        private List<Vec3> theMesh = new List<Vec3>();
-        private Vec3[,,] theMesh2;
+        private Vec3[,,] theMesh;
 
         [SerializeField] private float delta;
         [SerializeField] private float meshSize;
@@ -25,16 +24,16 @@ namespace Plane
         private void Start()
         {
             axisSteps = Mathf.RoundToInt(meshSize / delta);
-            theMesh2 = new Vec3[axisSteps, axisSteps, axisSteps];
+            theMesh = new Vec3[axisSteps, axisSteps, axisSteps];
             CreateMesh();
-            DrawMesh();
+            //DrawMesh();
             //DrawMeshParticles();
         }
 
-        private void OnDrawGizmos()
+        public Vec3[,,] GetMesh()
         {
+            return theMesh;
         }
-
         private void CreateMesh()
         {
             for (int x = 0; x < axisSteps; x++)
@@ -47,7 +46,7 @@ namespace Plane
                         float yCoord = y * delta;
                         float zCoord = z * delta;
                         Vec3 point = new Vec3(xCoord, yCoord, zCoord);
-                        theMesh2[x, y, z] = point;
+                        theMesh[x, y, z] = point;
                     }
                 }
             }
@@ -72,7 +71,7 @@ namespace Plane
                             yield return null;
                         }
 
-                        Instantiate(pointPrefab, theMesh2[x, y, z], Quaternion.identity);
+                        Instantiate(pointPrefab, theMesh[x, y, z], Quaternion.identity);
                     }
                 }
             }
@@ -85,14 +84,14 @@ namespace Plane
 
             // Set the number of particles to the number of theMesh
             var main = ps.main;
-            main.maxParticles = theMesh2.Length;
+            main.maxParticles = theMesh.Length;
 
             // Create an array to hold the particle data
-            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[theMesh2.Length];
+            ParticleSystem.Particle[] particles = new ParticleSystem.Particle[theMesh.Length];
 
             // Set the position of each particle to a point in the list
             int i = 0;
-            foreach (Vec3 vector in theMesh2)
+            foreach (Vec3 vector in theMesh)
             {
                 particles[i].position = vector;
                 particles[i].startSize = 0.1f; // Set the size of the particle
