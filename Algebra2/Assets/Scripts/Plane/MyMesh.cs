@@ -1,9 +1,5 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using CustomMath;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Plane
@@ -52,6 +48,20 @@ namespace Plane
             }
         }
 
+        private void OnDrawGizmos()
+        {
+            for (int x = 0; x < axisSteps; x++)
+            {
+                for (int y = 0; y < axisSteps; y++)
+                {
+                    for (int z = 0; z < axisSteps; z++)
+                    {
+                      // Gizmos.DrawSphere(theMesh[x, y, z], 0.01f);
+                        
+                    }
+                }
+            }
+        }
 
         private void DrawMesh()
         {

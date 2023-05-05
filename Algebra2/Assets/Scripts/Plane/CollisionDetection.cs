@@ -11,53 +11,30 @@ namespace Plane
         [SerializeField] private GameObject object2;
 
         private MyMesh myMesh;
-        private float planeDrawSize = 3;
+        private float planeDrawSize; 
 
-        private Vec3[,,] theMesh;
+        private Vec3[,,] meshVectors;
 
         private Vec3[] object1Points;
         private Vec3[] object2Points;
 
         private void Start()
         {
-            theMesh = myMesh.GetMesh();
+            planeDrawSize = 0.5f;
+            meshVectors = myMesh.GetMesh();
         }
 
         List<MyPlane> planes = new List<MyPlane>();
-
-
-        private void OnDrawGizmos()
-        {
-            /*
-            // Draw a line along the plane's normal
-            FindPoints(object1, object1Points);
-            var position = object1.transform.position;
-            for (int i = 0; i < planes.Count; i++)
-            {
-                Debug.DrawLine(position, position + planes[i].normal, Color.blue);
-
-                // Calculate two vectors perpendicular to the plane's normal
-                Vector3 tangent1 = Vector3.Cross(planes[i].normal, Vector3.up).normalized;
-                Vector3 tangent2 = Vector3.Cross(planes[i].normal, tangent1).normalized;
-
-                // Draw a square using the two perpendicular vectors and the plane's distance from the origin
-                Vector3 p1 = position + tangent1 * planeDrawSize + tangent2 * planeDrawSize + planes[i].distance * planes[i].normal;
-                Vector3 p2 = position - tangent1 * planeDrawSize + tangent2 * planeDrawSize + planes[i].distance * planes[i].normal;
-                Vector3 p3 = position - tangent1 * planeDrawSize - tangent2 * planeDrawSize + planes[i].distance * planes[i].normal;
-                Vector3 p4 = position + tangent1 * planeDrawSize - tangent2 * planeDrawSize + planes[i].distance * planes[i].normal;
-
-                Debug.DrawLine(p1, p2, Color.green);
-                Debug.DrawLine(p2, p3, Color.green);
-                Debug.DrawLine(p3, p4, Color.green);
-                Debug.DrawLine(p4, p1, Color.green);
-            }*/
-        }
 
         private void FindPoints(GameObject theObject, Vec3[] objectPoints)
         {
             Mesh objectMesh = theObject.GetComponent<MeshFilter>().mesh;
             Vector3[] vertices = objectMesh.vertices;
-
+            Vec3[] verticesVec3 = new Vec3[vertices.Length];
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                verticesVec3[i] = new Vec3(vertices[i]);
+            }
 
             for (int i = 0; i < vertices.Length; i++)
             {
@@ -65,7 +42,7 @@ namespace Plane
                 {
                     for (int k = j + 1; k < vertices.Length; k++)
                     {
-                        planes.Add(new MyPlane(vertices[i], vertices[j], vertices[k]));
+                        planes.Add(new MyPlane(verticesVec3[i], verticesVec3[j], verticesVec3[k]));
                     }
                 }
             }

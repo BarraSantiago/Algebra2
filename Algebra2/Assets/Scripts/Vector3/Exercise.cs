@@ -94,7 +94,7 @@ public class Exercise : MonoBehaviour
 
     public Vec3 Exercise7()
     {
-        return bVec3.normalized * aVec3.magnitude;
+        return bVec3.Normalized * aVec3.magnitude;
     }
 
     public Vec3 Exercise8() {
@@ -102,7 +102,7 @@ public class Exercise : MonoBehaviour
         float y = (aVec3.y + bVec3.y) / 2f;
         float z = (aVec3.z + bVec3.z) / 2f;
         Vec3 c = new Vec3(x,y,z);
-        c = c.normalized * Vec3.Distance(aVec3, bVec3);
+        c = c.Normalized * Vec3.Distance(aVec3, bVec3);
         return c;
     }
     
@@ -121,7 +121,7 @@ public class Exercise : MonoBehaviour
         Vec3 cross = Vec3.Cross(aVec3, bVec3);
 
         // Get the reflection of the cross product in the plane perpendicular to A
-        Vec3 reflection = Vec3.Reflect(cross, aVec3.normalized);
+        Vec3 reflection = Vec3.Reflect(cross, aVec3.Normalized);
 
 
         return -reflection;

@@ -18,7 +18,7 @@ namespace CustomMath
             get { return x * x + y * y + z * z; }
         }
 
-        public Vec3 normalized
+        public Vec3 Normalized
         {
             get
             {
@@ -223,7 +223,7 @@ namespace CustomMath
         {
             if (vector.sqrMagnitude > maxLength * maxLength)
             {
-                return new Vec3(vector.normalized * maxLength);
+                return new Vec3(vector.Normalized * maxLength);
             }
 
             return vector;
