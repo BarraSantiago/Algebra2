@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using CustomMath;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class Exercise : MonoBehaviour
 {
@@ -48,29 +44,29 @@ public class Exercise : MonoBehaviour
         return new Vec3(vector3.x, vector3.y, vector3.z);
     }
 
-    public Vec3 Exercise1()
+    private Vec3 Exercise1()
     {
         return new Vec3(aVec3 + bVec3);
     }
 
-    public Vec3 Exercise2()
+    private Vec3 Exercise2()
     {
         return new Vec3(aVec3 - bVec3);
     }
 
-    public Vec3 Exercise3()
+    private Vec3 Exercise3()
     {
         aVec3.Scale(bVec3);
 
         return new Vec3(aVec3);
     }
 
-    public Vec3 Exercise4()
+    private Vec3 Exercise4()
     {
         return Vec3.Cross(bVec3, aVec3);
     }
 
-    public Vec3 Exercise5()
+    private Vec3 Exercise5()
     {
         float speed = 0.1f;
         Vec3 aToB = bVec3 - cVec3;
@@ -84,7 +80,7 @@ public class Exercise : MonoBehaviour
         return cVec3 + aToB / distance * speed;
     }
 
-    public Vec3 Exercise6()
+    private Vec3 Exercise6()
     {
         float x = aVec3.x > bVec3.x ? aVec3.x : bVec3.x;
         float y = aVec3.y > bVec3.y ? aVec3.y : bVec3.y;
@@ -92,12 +88,12 @@ public class Exercise : MonoBehaviour
         return new Vec3(x, y, z);
     }
 
-    public Vec3 Exercise7()
+    private Vec3 Exercise7()
     {
         return bVec3.Normalized * aVec3.magnitude;
     }
 
-    public Vec3 Exercise8() {
+    private Vec3 Exercise8() {
         float x = (aVec3.x + bVec3.x) / 2f;
         float y = (aVec3.y + bVec3.y) / 2f;
         float z = (aVec3.z + bVec3.z) / 2f;
@@ -105,8 +101,8 @@ public class Exercise : MonoBehaviour
         c = c.Normalized * Vec3.Distance(aVec3, bVec3);
         return c;
     }
-    
-    public Vec3 Exercise9()
+
+    private Vec3 Exercise9()
     {
         Vec3 projection = bVec3 * (Vec3.Dot(aVec3, bVec3) / Mathf.Pow(bVec3.magnitude, 2));
 
@@ -116,7 +112,7 @@ public class Exercise : MonoBehaviour
         return reflection;
     }
 
-    public Vec3 Exercise10()
+    private Vec3 Exercise10()
     {
         Vec3 cross = Vec3.Cross(aVec3, bVec3);
 

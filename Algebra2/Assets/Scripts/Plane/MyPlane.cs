@@ -1,9 +1,9 @@
+using System;
 using CustomMath;
-using UnityEngine;
 
 namespace Plane
 {
-    public class MyPlane : MonoBehaviour
+    public class MyPlane : IEquatable<MyPlane>
     {
         private Vec3 mNormal;
         private float mDistance;
@@ -58,12 +58,12 @@ namespace Plane
             mNormal = -mNormal;
             mDistance = -mDistance;
         }
-
+        /*
         public MyPlane Flipped
         {
             get { return gameObject.AddComponent<MyPlane>(); }
         }
-    
+            */
         public void Translate(Vec3 translation)
         {
             mDistance += Vec3.Dot(mNormal, translation);
@@ -96,6 +96,26 @@ namespace Plane
             float d0 = Vec3.Dot(mNormal, inPt0) + mDistance;
             float d1 = Vec3.Dot(mNormal, inPt1) + mDistance;
             return (d0 > 0 && d1 > 0) || (d0 <= 0 && d1 <= 0);
+        }
+
+        public bool Equals(MyPlane other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return mNormal.Equals(other.mNormal) && mDistance.Equals(other.mDistance);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((MyPlane)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(mNormal, mDistance);
         }
     }
 }
