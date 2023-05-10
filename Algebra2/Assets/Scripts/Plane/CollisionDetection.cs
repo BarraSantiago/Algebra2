@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using CustomMath;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Plane
 {
@@ -23,26 +25,22 @@ namespace Plane
             theMesh = myMesh.GetMesh();
             planesObj1 = new List<MyPlane>();
             planesObj2 = new List<MyPlane>();
-            object1Mesh = GetComponent<MeshFilter>();
-            object2Mesh = GetComponent<MeshFilter>();
-            if (object1Mesh != null)
+            pointsInsideObj1 = new List<Vec3>();
+            pointsInsideObj2 = new List<Vec3>();
+            if (object1Mesh != null && object2Mesh != null)
             {
                 CreatePlanes(object1Mesh, planesObj1);
-
-                if (object2Mesh != null)
+                CreatePlanes(object2Mesh, planesObj2);
+                
+                CheckPointsInsideObject(planesObj1, pointsInsideObj1);
+                CheckPointsInsideObject(planesObj2, pointsInsideObj2);
+                
+                if (CheckRepetiton(pointsInsideObj1, pointsInsideObj2))
                 {
-                    CreatePlanes(object2Mesh, planesObj2);
-
-                    CheckPointsInsideObject(planesObj1, pointsInsideObj1);
-                    CheckPointsInsideObject(planesObj2, pointsInsideObj2);
-                    if (CheckRepetiton(pointsInsideObj1, pointsInsideObj2))
-                    {
-                        Debug.Log("HUSTON, TENEMOS CONTACTO.");
-                    }
+                    Debug.Log("HOUSTON, TENEMOS CONTACTO.");
                 }
             }
         }
-
 
         private void CreatePlanes(MeshFilter objectMesh, List<MyPlane> planes)
         {
@@ -87,19 +85,19 @@ namespace Plane
 
         private void CheckPointsInsideObject(List<MyPlane> planes, List<Vec3> pointsInsideObject)
         {
-            for (int x = 0; x < theMesh.Length; x++)
+            for (int x = 0; x < myMesh.GetAxisSteps(); x++)
             {
-                for (int y = x + 1; y < theMesh.Length; y++)
+                for (int y = x + 1; y < myMesh.GetAxisSteps(); y++)
                 {
-                    for (int z = y + 1; z < theMesh.Length; z++)
+                    for (int z = y + 1; z < myMesh.GetAxisSteps(); z++)
                     {
-                        int colisionCounter = 0;
+                        int collisions = 0;
                         foreach (MyPlane plane in planes)
                         {
-                            if (LinePlaneIntersection(theMesh[x, y, z], plane)) colisionCounter++;
+                            if (LinePlaneIntersection(theMesh[x, y, z], plane)) collisions++;
                         }
 
-                        if (colisionCounter % 2 == 1) pointsInsideObject.Add(new Vec3(x, y, z));
+                        if (collisions % 2 != 0) pointsInsideObject.Add(new Vec3(x, y, z));
                     }
                 }
             }

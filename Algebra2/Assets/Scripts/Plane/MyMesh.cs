@@ -22,7 +22,7 @@ namespace Plane
             axisSteps = Mathf.RoundToInt(meshSize / delta);
             theMesh = new Vec3[axisSteps, axisSteps, axisSteps];
             CreateMesh();
-            DrawMesh();
+            //DrawMesh();
             //DrawMeshParticles();
         }
 
@@ -30,6 +30,12 @@ namespace Plane
         {
             return theMesh;
         }
+
+        public int GetAxisSteps()
+        {
+            return axisSteps;
+        }
+
         private void CreateMesh()
         {
             for (int x = 0; x < axisSteps; x++)
@@ -56,8 +62,7 @@ namespace Plane
                 {
                     for (int z = 0; z < axisSteps; z++)
                     {
-                      // Gizmos.DrawSphere(theMesh[x, y, z], 0.01f);
-                        
+                        // Gizmos.DrawSphere(theMesh[x, y, z], 0.01f);
                     }
                 }
             }

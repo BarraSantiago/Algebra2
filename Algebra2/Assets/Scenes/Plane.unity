@@ -5549,8 +5549,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a12b218a85e38847ac232c5dd54597d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  object1Mesh: {fileID: 1432581520}
-  object2Mesh: {fileID: 668224723}
+  object1Mesh: {fileID: 668224723}
+  object2Mesh: {fileID: 1432581520}
   myMesh: {fileID: 277535298}
 --- !u!4 &1757727919
 Transform:
