@@ -11,29 +11,20 @@ namespace Plane
         [SerializeField] private MeshFilter object1Mesh;
         [SerializeField] private MeshFilter object2Mesh;
 
-        private List<MyPlane> planesObj1;
-        private List<MyPlane> planesObj2;
-
-        private List<Vec3> pointsInsideObj1;
-        private List<Vec3> pointsInsideObj2;
-
         private Vec3[,,] theMesh;
         [SerializeField] private MyMesh myMesh;
 
         private void Start()
         {
             theMesh = myMesh.GetMesh();
-            planesObj1 = new List<MyPlane>();
-            planesObj2 = new List<MyPlane>();
-            pointsInsideObj1 = new List<Vec3>();
-            pointsInsideObj2 = new List<Vec3>();
+
             if (object1Mesh != null && object2Mesh != null)
             {
-                CreatePlanes(object1Mesh, planesObj1);
-                CreatePlanes(object2Mesh, planesObj2);
+                CreatePlanes(object1Mesh, out List<MyPlane> planesObj1, out List<Vec3> trianglesObj1);
+                CreatePlanes(object2Mesh, out List<MyPlane> planesObj2, out List<Vec3> trianglesObj2);
 
-                CheckPointsInsideObject(planesObj1, pointsInsideObj1);
-                CheckPointsInsideObject(planesObj2, pointsInsideObj2);
+                CheckObjectPoints(planesObj1, out List<Vec3> pointsInsideObj1, trianglesObj1);
+                CheckObjectPoints(planesObj2, out List<Vec3> pointsInsideObj2, trianglesObj2);
 
                 if (CheckRepetiton(pointsInsideObj1, pointsInsideObj2))
                 {
@@ -41,44 +32,84 @@ namespace Plane
                 }
             }
         }
-        
-        private void CreatePlanes(MeshFilter objectMesh, List<MyPlane> planes)
+
+        private void CreatePlanes(MeshFilter objectMesh, out List<MyPlane> planes, out List<Vec3> trianglesObj)
         {
+            planes = new List<MyPlane>();
+            trianglesObj = new List<Vec3>();
+    
             Vector3[] vertices = objectMesh.mesh.vertices;
             Vec3[] verticesVec3 = new Vec3[vertices.Length];
 
             for (int i = 0; i < vertices.Length; i++)
             {
-                verticesVec3[i] = new Vec3(vertices[i]);
+                verticesVec3[i] = new Vec3(objectMesh.transform.TransformPoint(vertices[i]));
             }
+
             // Create two triangles for each face of the cube
             for (int i = 0; i < vertices.Length; i += 4)
             {
-                planes.Add(new MyPlane(verticesVec3[i], verticesVec3[i+1], verticesVec3[i+2]));
-                planes.Add(new MyPlane(verticesVec3[i+2], verticesVec3[i+1], verticesVec3[i+3]));
+                trianglesObj.Add(verticesVec3[i]);
+                trianglesObj.Add(verticesVec3[i + 1]);
+                trianglesObj.Add(verticesVec3[i + 2]);
+                trianglesObj.Add(verticesVec3[i + 2]);
+                trianglesObj.Add(verticesVec3[i + 1]);
+                trianglesObj.Add(verticesVec3[i + 3]);
+                planes.Add(new MyPlane(verticesVec3[i], verticesVec3[i + 1], verticesVec3[i + 2]));
+                planes.Add(new MyPlane(verticesVec3[i + 2], verticesVec3[i + 1], verticesVec3[i + 3]));
             }
         }
 
-        public bool LinePlaneIntersection(Vec3 lineStart, MyPlane plane)
+
+        private void CheckObjectPoints(List<MyPlane> planes, out List<Vec3> objectPoints, List<Vec3> trianglesObj)
+        {
+            objectPoints = new List<Vec3>();
+
+            for (int x = 0; x < myMesh.GetAxisSteps(); x++)
+            {
+                for (int y = x + 1; y < myMesh.GetAxisSteps(); y++)
+                {
+                    for (int z = y + 1; z < myMesh.GetAxisSteps(); z++)
+                    {
+                        int collisions = 0;
+                        for (var i = 0; i < planes.Count; i++)
+                        {
+                            if (LinePlaneIntersection(theMesh[x, y, z], planes[i], out Vec3 intersectionPoint))
+                            {
+                                if (intersectionPoint == Vec3.Back) continue;
+                                if (IsPointInsideTriangle(intersectionPoint, trianglesObj[i * 3],
+                                        trianglesObj[i * 3 + 1], trianglesObj[i * 3 + 2]))
+                                {
+                                    collisions++;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (collisions % 2 == 1) objectPoints.Add(theMesh[x, y, z]);
+                    }
+                }
+            }
+        }
+
+        private bool LinePlaneIntersection(Vec3 lineStart, MyPlane plane, out Vec3 intersectionPoint)
         {
             Vec3 planeNormal = plane.Normal;
             Vec3 planePoint = planeNormal * -plane.Distance;
-            Vector3 lineEndVector = Random.onUnitSphere;
-            Vec3 lineEnd;
-            lineEnd.x = lineEndVector.x;
-            lineEnd.y = lineEndVector.y;
-            lineEnd.z = lineEndVector.z;
+            
+            Vec3 lineEnd = Vec3.Down;
 
             float distance1 = Vec3.Dot(planePoint - lineStart, planeNormal);
             float distance2 = Vec3.Dot(planeNormal, lineEnd - lineStart);
 
             if (distance2 == 0) // line is parallel to plane
             {
+                intersectionPoint = Vec3.Back;
                 return false;
             }
 
             float distance3 = distance1 / distance2;
-
+            intersectionPoint = lineStart + (lineEnd - lineStart) * distance3;
             if (distance3 < 0 || distance3 > 1) // intersection point is not on the line segment
             {
                 return false;
@@ -87,24 +118,27 @@ namespace Plane
             return true;
         }
 
-        private void CheckPointsInsideObject(List<MyPlane> planes, List<Vec3> pointsInsideObject)
+        //barycentric coordinates method
+        private bool IsPointInsideTriangle(Vector3 point, Vector3 v1, Vector3 v2, Vector3 v3)
         {
-            for (int x = 0; x < myMesh.GetAxisSteps(); x++)
-            {
-                for (int y = x + 1; y < myMesh.GetAxisSteps(); y++)
-                {
-                    for (int z = y + 1; z < myMesh.GetAxisSteps(); z++)
-                    {
-                        int collisions = 0;
-                        foreach (MyPlane plane in planes)
-                        {
-                            if (LinePlaneIntersection(theMesh[x, y, z], plane)) collisions++;
-                        }
+            Vector3 v1v2 = v2 - v1;
+            Vector3 v1v3 = v3 - v1;
+            Vector3 vp = point - v1;
 
-                        if (collisions % 2 != 0) pointsInsideObject.Add(new Vec3(x, y, z));
-                    }
-                }
-            }
+            // Compute dot products
+            float dot11 = Vector3.Dot(v1v2, v1v2);
+            float dot12 = Vector3.Dot(v1v2, v1v3);
+            float dot22 = Vector3.Dot(v1v3, v1v3);
+            float dotp1 = Vector3.Dot(vp, v1v2);
+            float dotp2 = Vector3.Dot(vp, v1v3);
+
+            // Compute barycentric coordinates
+            float invDenom = 1 / (dot11 * dot22 - dot12 * dot12);
+            float u = (dot22 * dotp1 - dot12 * dotp2) * invDenom;
+            float v = (dot11 * dotp2 - dot12 * dotp1) * invDenom;
+
+            // Check if point is inside triangle
+            return (u >= 0) && (v >= 0) && (u + v <= 1);
         }
 
         private bool CheckRepetiton(List<Vec3> points1, List<Vec3> points2)
