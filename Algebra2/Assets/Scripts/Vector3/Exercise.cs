@@ -1,32 +1,89 @@
+using System;
 using CustomMath;
 using UnityEngine;
 
 public class Exercise : MonoBehaviour
 {
-    [SerializeField] private Vector3 aVector3;
+    enum ExerciseEnum
+    {
+        Uno = 1,
+        Dos,
+        Tres,
+        Cuatro,
+        Cinco,
+        Seis,
+        Siete,
+        Ocho,
+        Nueve,
+        Diez
+    }
+
+    [Header("Exercise")] //[SerializeField] private int[] exercise = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    [SerializeField]
+    private ExerciseEnum exercise = ExerciseEnum.Uno;
+
+
+    [SerializeField] private bool printVec3 = false;
+
+    [Header("Vectors")] [SerializeField] private Vector3 aVector3;
     [SerializeField] private Vector3 bVector3;
+
 
     private Vec3 aVec3;
     private Vec3 bVec3;
     private Vec3 cVec3;
 
-    private void OnValidate()
-    {
-        
-    }
 
     private void Update()
     {
         aVec3 = Vector3ToVec3(aVector3);
         bVec3 = Vector3ToVec3(bVector3);
-        cVec3 = Exercise10();
-        Debug.Log(cVec3);
-        //For Exercise 5
-        /*
-        if (cVec3 == bVec3)
+
+        switch (exercise)
         {
-            cVec3 = aVec3;
-        }*/
+            case ExerciseEnum.Uno:
+                cVec3 = Exercise1();
+                break;
+            case ExerciseEnum.Dos:
+                cVec3 = Exercise2();
+                break;
+            case ExerciseEnum.Tres:
+                cVec3 = Exercise3();
+                break;
+            case ExerciseEnum.Cuatro:
+                cVec3 = Exercise4();
+                break;
+            case ExerciseEnum.Cinco:
+                cVec3 = Exercise5();
+                break;
+            case ExerciseEnum.Seis:
+                cVec3 = Exercise6();
+                break;
+            case ExerciseEnum.Siete:
+                cVec3 = Exercise7();
+                break;
+            case ExerciseEnum.Ocho:
+                cVec3 = Exercise8();
+                break;
+            case ExerciseEnum.Nueve:
+                cVec3 = Exercise9();
+                break;
+            case ExerciseEnum.Diez:
+                cVec3 = Exercise10();
+                break;
+
+
+            default:
+                break;
+        }
+    }
+
+    private void OnValidate()
+    {
+        if (printVec3)
+        {
+            Debug.Log(cVec3);
+        }
     }
 
     private void OnDrawGizmos()
@@ -93,11 +150,12 @@ public class Exercise : MonoBehaviour
         return bVec3.Normalized * aVec3.magnitude;
     }
 
-    private Vec3 Exercise8() {
+    private Vec3 Exercise8()
+    {
         float x = (aVec3.x + bVec3.x) / 2f;
         float y = (aVec3.y + bVec3.y) / 2f;
         float z = (aVec3.z + bVec3.z) / 2f;
-        Vec3 c = new Vec3(x,y,z);
+        Vec3 c = new Vec3(x, y, z);
         c = c.Normalized * Vec3.Distance(aVec3, bVec3);
         return c;
     }
@@ -121,6 +179,5 @@ public class Exercise : MonoBehaviour
 
 
         return -reflection;
-        
     }
 }

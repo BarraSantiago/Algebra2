@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57a14286c01cda348a40627c6fbac8db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  delta: 0.5
+  delta: 1
   meshSize: 5
   axisSteps: 0
   pointPrefab: {fileID: 355632860}
@@ -799,7 +799,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1432581517}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.42, y: 1.15, z: 2.6479998}
+  m_LocalPosition: {x: 3.961, y: 1.15, z: 2.6479998}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
