@@ -18,10 +18,9 @@ public class Exercise : MonoBehaviour
         Diez
     }
 
-    [Header("Exercise")] //[SerializeField] private int[] exercise = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    [Header("Exercise")]
     [SerializeField]
     private ExerciseEnum exercise = ExerciseEnum.Uno;
-
 
     [SerializeField] private bool printVec3 = false;
 
@@ -71,10 +70,6 @@ public class Exercise : MonoBehaviour
             case ExerciseEnum.Diez:
                 cVec3 = Exercise10();
                 break;
-
-
-            default:
-                break;
         }
     }
 
@@ -103,16 +98,19 @@ public class Exercise : MonoBehaviour
 
     private Vec3 Exercise1()
     {
+        //Sum of A and B
         return new Vec3(aVec3 + bVec3);
     }
 
     private Vec3 Exercise2()
     {
+        //C is the difference between A and B
         return new Vec3(aVec3 - bVec3);
     }
 
     private Vec3 Exercise3()
     {
+        //C is multiplication of A and B
         aVec3.Scale(bVec3);
 
         return new Vec3(aVec3);
@@ -120,6 +118,7 @@ public class Exercise : MonoBehaviour
 
     private Vec3 Exercise4()
     {
+        //Vec C perpendicular || to  A and B 
         return Vec3.Cross(bVec3, aVec3);
     }
 
@@ -129,6 +128,7 @@ public class Exercise : MonoBehaviour
         Vec3 aToB = bVec3 - cVec3;
         float distance = aToB.magnitude;
 
+        //Moves Vec C from A to B in a constant speed
         if (distance <= speed || distance == 0f)
         {
             return bVec3;
@@ -139,6 +139,7 @@ public class Exercise : MonoBehaviour
 
     private Vec3 Exercise6()
     {
+        //Vec C has the greatest value of each vec
         float x = aVec3.x > bVec3.x ? aVec3.x : bVec3.x;
         float y = aVec3.y > bVec3.y ? aVec3.y : bVec3.y;
         float z = aVec3.z > bVec3.z ? aVec3.z : bVec3.z;
@@ -147,6 +148,7 @@ public class Exercise : MonoBehaviour
 
     private Vec3 Exercise7()
     {
+        //Vec C  perpendicular ⟂ to B with magnitude of A
         return bVec3.Normalized * aVec3.magnitude;
     }
 
@@ -156,15 +158,18 @@ public class Exercise : MonoBehaviour
         float y = (aVec3.y + bVec3.y) / 2f;
         float z = (aVec3.z + bVec3.z) / 2f;
         Vec3 c = new Vec3(x, y, z);
+        
+        //Creates vec C that targets the middle point of vec A and B with the magnitude of the distance of A to B
         c = c.Normalized * Vec3.Distance(aVec3, bVec3);
         return c;
     }
 
     private Vec3 Exercise9()
     {
-        Vec3 projection = bVec3 * (Vec3.Dot(aVec3, bVec3) / Mathf.Pow(bVec3.magnitude, 2));
-
-        // Get the reflection of vecToReflect about the plane defined by bVec3
+        //Vec3 projection = bVec3 * (Vec3.Dot(aVec3, bVec3) / Mathf.Pow(bVec3.magnitude, 2));
+        Vec3 projection = Vec3.Project(aVec3, bVec3);
+        
+        //Calculates the reflection of vec A over B
         Vec3 reflection = aVec3 - 2 * projection;
 
         return reflection;
@@ -174,7 +179,7 @@ public class Exercise : MonoBehaviour
     {
         Vec3 cross = Vec3.Cross(aVec3, bVec3);
 
-        // Get the reflection of the cross product in the plane perpendicular to A
+        // reflection of the cross product in the plane perpendicular to A
         Vec3 reflection = Vec3.Reflect(cross, aVec3.Normalized);
 
 

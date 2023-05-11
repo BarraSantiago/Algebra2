@@ -8,6 +8,7 @@ namespace Plane
 {
     public class CollisionDetection : MonoBehaviour
     {
+        [Header("Objects Mesh")]
         [SerializeField] private MeshFilter object1Mesh;
         [SerializeField] private MeshFilter object2Mesh;
 
