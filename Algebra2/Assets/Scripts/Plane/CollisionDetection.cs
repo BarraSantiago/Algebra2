@@ -31,56 +31,60 @@ namespace Plane
             {
                 CreatePlanes(object1Mesh, planesObj1);
                 CreatePlanes(object2Mesh, planesObj2);
-                
+
                 CheckPointsInsideObject(planesObj1, pointsInsideObj1);
                 CheckPointsInsideObject(planesObj2, pointsInsideObj2);
-                
+
                 if (CheckRepetiton(pointsInsideObj1, pointsInsideObj2))
                 {
                     Debug.Log("HOUSTON, TENEMOS CONTACTO.");
                 }
             }
         }
-
+        
         private void CreatePlanes(MeshFilter objectMesh, List<MyPlane> planes)
         {
             Vector3[] vertices = objectMesh.mesh.vertices;
             Vec3[] verticesVec3 = new Vec3[vertices.Length];
+
             for (int i = 0; i < vertices.Length; i++)
             {
                 verticesVec3[i] = new Vec3(vertices[i]);
             }
-
-            for (int i = 0; i < vertices.Length; i++)
+            // Create two triangles for each face of the cube
+            for (int i = 0; i < vertices.Length; i += 4)
             {
-                for (int j = i + 1; j < vertices.Length; j++)
-                {
-                    for (int k = j + 1; k < vertices.Length; k++)
-                    {
-                        planes.Add(new MyPlane(verticesVec3[i], verticesVec3[j], verticesVec3[k]));
-                    }
-                }
+                planes.Add(new MyPlane(verticesVec3[i], verticesVec3[i+1], verticesVec3[i+2]));
+                planes.Add(new MyPlane(verticesVec3[i+2], verticesVec3[i+1], verticesVec3[i+3]));
             }
         }
 
-        private bool LinePlaneIntersection(Vector3 origin, MyPlane plane)
+        public bool LinePlaneIntersection(Vec3 lineStart, MyPlane plane)
         {
-            Vector3 direction = Random.onUnitSphere;
-            float distance;
+            Vec3 planeNormal = plane.Normal;
+            Vec3 planePoint = planeNormal * -plane.Distance;
+            Vector3 lineEndVector = Random.onUnitSphere;
+            Vec3 lineEnd;
+            lineEnd.x = lineEndVector.x;
+            lineEnd.y = lineEndVector.y;
+            lineEnd.z = lineEndVector.z;
 
-            // Check if the line and plane are not parallel
-            if (Vector3.Dot(direction, plane.Normal) != 0)
+            float distance1 = Vec3.Dot(planePoint - lineStart, planeNormal);
+            float distance2 = Vec3.Dot(planeNormal, lineEnd - lineStart);
+
+            if (distance2 == 0) // line is parallel to plane
             {
-                distance = (plane.Distance - Vector3.Dot(plane.Normal, origin)) / Vector3.Dot(direction, plane.Normal);
-
-                // Check if the intersection is in front of the line's origin
-                if (distance > 0)
-                {
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            float distance3 = distance1 / distance2;
+
+            if (distance3 < 0 || distance3 > 1) // intersection point is not on the line segment
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void CheckPointsInsideObject(List<MyPlane> planes, List<Vec3> pointsInsideObject)
@@ -105,11 +109,11 @@ namespace Plane
 
         private bool CheckRepetiton(List<Vec3> points1, List<Vec3> points2)
         {
-            for (int i = 0; i < points1.Count; i++)
+            foreach (Vec3 t in points1)
             {
-                for (int j = 0; j < points2.Count; j++)
+                foreach (Vec3 t1 in points2)
                 {
-                    if (points1[i] == points2[j]) return true;
+                    if (t == t1) return true;
                 }
             }
 

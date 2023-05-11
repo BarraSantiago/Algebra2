@@ -22,7 +22,7 @@ namespace Plane
             axisSteps = Mathf.RoundToInt(meshSize / delta);
             theMesh = new Vec3[axisSteps, axisSteps, axisSteps];
             CreateMesh();
-            //DrawMesh();
+            DrawMesh();
             //DrawMeshParticles();
         }
 
