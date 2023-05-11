@@ -65,7 +65,7 @@ namespace Plane
         private void CheckObjectPoints(List<MyPlane> planes, out List<Vec3> objectPoints, List<Vec3> trianglesObj)
         {
             objectPoints = new List<Vec3>();
-
+            //Traverses through myMesh
             for (int x = 0; x < myMesh.GetAxisSteps(); x++)
             {
                 for (int y = x + 1; y < myMesh.GetAxisSteps(); y++)
@@ -75,9 +75,12 @@ namespace Plane
                         int collisions = 0;
                         for (var i = 0; i < planes.Count; i++)
                         {
+                            //checks intersection between line and planes
                             if (LinePlaneIntersection(theMesh[x, y, z], planes[i], out Vec3 intersectionPoint))
                             {
-                                if (intersectionPoint == Vec3.Back) continue;
+                                if (intersectionPoint == Vec3.Back) continue; //no intersection case
+                                
+                                //checks if point is inside triangle
                                 if (IsPointInsideTriangle(intersectionPoint, trianglesObj[i * 3],
                                         trianglesObj[i * 3 + 1], trianglesObj[i * 3 + 2]))
                                 {
@@ -86,7 +89,7 @@ namespace Plane
                                 }
                             }
                         }
-
+                        //if odd ammount of collisions, adds point to points inside the object
                         if (collisions % 2 == 1) objectPoints.Add(theMesh[x, y, z]);
                     }
                 }
@@ -98,9 +101,11 @@ namespace Plane
             Vec3 planeNormal = plane.Normal;
             Vec3 planePoint = planeNormal * -plane.Distance;
             
-            Vec3 lineEnd = Vec3.Down;
+            Vec3 lineEnd = Vec3.Down; //uses this vec3 as reference because its outside of the mesh
 
+            //calculates distance between points and start
             float distance1 = Vec3.Dot(planePoint - lineStart, planeNormal);
+            //calculates direction of line compared to plane
             float distance2 = Vec3.Dot(planeNormal, lineEnd - lineStart);
 
             if (distance2 == 0) // line is parallel to plane
@@ -110,6 +115,7 @@ namespace Plane
             }
 
             float distance3 = distance1 / distance2;
+            //distance between start point and intersection point
             intersectionPoint = lineStart + (lineEnd - lineStart) * distance3;
             if (distance3 < 0 || distance3 > 1) // intersection point is not on the line segment
             {
@@ -119,19 +125,19 @@ namespace Plane
             return true;
         }
 
-        //barycentric coordinates method
-        private bool IsPointInsideTriangle(Vector3 point, Vector3 v1, Vector3 v2, Vector3 v3)
+        //barycentric coordinates method to calculate if point is inside triangle
+        private bool IsPointInsideTriangle(Vec3 point, Vec3 v1, Vec3 v2, Vec3 v3)
         {
-            Vector3 v1v2 = v2 - v1;
-            Vector3 v1v3 = v3 - v1;
-            Vector3 vp = point - v1;
+            Vec3 v1V2 = v2 - v1;
+            Vec3 v1V3 = v3 - v1;
+            Vec3 vp = point - v1;
 
             // Compute dot products
-            float dot11 = Vector3.Dot(v1v2, v1v2);
-            float dot12 = Vector3.Dot(v1v2, v1v3);
-            float dot22 = Vector3.Dot(v1v3, v1v3);
-            float dotp1 = Vector3.Dot(vp, v1v2);
-            float dotp2 = Vector3.Dot(vp, v1v3);
+            float dot11 = Vec3.Dot(v1V2, v1V2);
+            float dot12 = Vec3.Dot(v1V2, v1V3);
+            float dot22 = Vec3.Dot(v1V3, v1V3);
+            float dotp1 = Vec3.Dot(vp, v1V2);
+            float dotp2 = Vec3.Dot(vp, v1V3);
 
             // Compute barycentric coordinates
             float invDenom = 1 / (dot11 * dot22 - dot12 * dot12);

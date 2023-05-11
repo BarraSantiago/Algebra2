@@ -1,6 +1,5 @@
 using System;
 using CustomMath;
-using UnityEngine;
 
 namespace Plane
 {
@@ -21,7 +20,7 @@ namespace Plane
             get => mDistance;
             set => mDistance = value;
         }
-    
+
         public MyPlane(Vec3 inNormal, Vec3 inPoint)
         {
             mNormal = inNormal.Normalized;
@@ -46,7 +45,7 @@ namespace Plane
             mNormal = inNormal.Normalized;
             mDistance = -Vec3.Dot(inNormal, inPoint);
         }
-    
+
         public void Set3Points(Vec3 a, Vec3 b, Vec3 c)
         {
             mNormal = Vec3.Cross(b - a, c - a);
@@ -59,12 +58,12 @@ namespace Plane
             mNormal = -mNormal;
             mDistance = -mDistance;
         }
-        /*
-        public MyPlane Flipped
+
+        public MyPlane Flipped()
         {
-            get { return gameObject.AddComponent<MyPlane>(); }
+            return new MyPlane(-Normal, -Distance);
         }
-            */
+
         public void Translate(Vec3 translation)
         {
             mDistance += Vec3.Dot(mNormal, translation);
