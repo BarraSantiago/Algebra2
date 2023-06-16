@@ -140,6 +140,7 @@ namespace Plane
             float dotp2 = Vec3.Dot(vp, v1V3);
 
             // Compute barycentric coordinates
+            
             float invDenom = 1 / (dot11 * dot22 - dot12 * dot12);
             float u = (dot22 * dotp1 - dot12 * dotp2) * invDenom;
             float v = (dot11 * dotp2 - dot12 * dotp1) * invDenom;

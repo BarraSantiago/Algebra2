@@ -1,4 +1,3 @@
-using System;
 using CustomMath;
 using UnityEngine;
 
@@ -18,9 +17,7 @@ public class Exercise : MonoBehaviour
         Diez
     }
 
-    [Header("Exercise")]
-    [SerializeField]
-    private ExerciseEnum exercise = ExerciseEnum.Uno;
+    [Header("Exercise")] [SerializeField] private ExerciseEnum exercise = ExerciseEnum.Uno;
 
     [SerializeField] private bool printVec3 = false;
 
@@ -54,6 +51,7 @@ public class Exercise : MonoBehaviour
                 break;
             case ExerciseEnum.Cinco:
                 cVec3 = Exercise5();
+                if (cVec3 == bVec3) cVec3 = aVec3;
                 break;
             case ExerciseEnum.Seis:
                 cVec3 = Exercise6();
@@ -124,7 +122,7 @@ public class Exercise : MonoBehaviour
 
     private Vec3 Exercise5()
     {
-        float speed = 0.1f;
+        float speed = 0.01f;
         Vec3 aToB = bVec3 - cVec3;
         float distance = aToB.magnitude;
 
@@ -134,45 +132,33 @@ public class Exercise : MonoBehaviour
             return bVec3;
         }
 
-        return cVec3 + aToB / distance * speed;
+        return Vec3.Lerp(cVec3, bVec3, speed / distance);
     }
 
     private Vec3 Exercise6()
     {
         //Vec C has the greatest value of each vec
-        float x = aVec3.x > bVec3.x ? aVec3.x : bVec3.x;
-        float y = aVec3.y > bVec3.y ? aVec3.y : bVec3.y;
-        float z = aVec3.z > bVec3.z ? aVec3.z : bVec3.z;
-        return new Vec3(x, y, z);
+        return Vec3.Max(aVec3, bVec3);
     }
 
     private Vec3 Exercise7()
     {
-        //Vec C  perpendicular ⟂ to B with magnitude of A
+        //Vec C perpendicular ⟂ to B with magnitude of A
         return bVec3.Normalized * aVec3.magnitude;
     }
 
     private Vec3 Exercise8()
     {
-        float x = (aVec3.x + bVec3.x) / 2f;
-        float y = (aVec3.y + bVec3.y) / 2f;
-        float z = (aVec3.z + bVec3.z) / 2f;
-        Vec3 c = new Vec3(x, y, z);
-        
         //Creates vec C that targets the middle point of vec A and B with the magnitude of the distance of A to B
-        c = c.Normalized * Vec3.Distance(aVec3, bVec3);
+        Vec3 c = Vec3.Lerp(aVec3, bVec3, 0.5f).Normalized * Vec3.Distance(aVec3, bVec3);
+
         return c;
     }
 
     private Vec3 Exercise9()
     {
-        //Vec3 projection = bVec3 * (Vec3.Dot(aVec3, bVec3) / Mathf.Pow(bVec3.magnitude, 2));
-        Vec3 projection = Vec3.Project(aVec3, bVec3);
-        
         //Calculates the reflection of vec A over B
-        Vec3 reflection = aVec3 - 2 * projection;
-
-        return reflection;
+        return Vec3.Reflect(aVec3, bVec3.Normalized);
     }
 
     private Vec3 Exercise10()
