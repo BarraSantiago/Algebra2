@@ -22,11 +22,11 @@ namespace Matrix
             */
         Determinant(MyMatrix4x4 m);
         Inverse(MyMatrix4x4 m);
-        Rotate(MyQuaternion q);
+        Rotate(MyQuat.MyQuat q);
         Scale(Vec3 vector);
         Translate(Vec3 vector);
         Transpose(MyMatrix4x4 m);
-        TRS(Vec3 pos, MyQuaternion q, Vec3 s);
+        TRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
         GetColumn(int index);
         GetPosition();
         GetRow(int index);
@@ -35,7 +35,7 @@ namespace Matrix
         MultiplyVector(Vec3 vector);
         SetColumn(int index, Vector4 column);
         SetRow(int index, Vector4 row);
-        SetTRS(Vec3 pos, MyQuaternion q, Vec3 s);
+        SetTRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
         ValidTRS();
         Vector4 operator *(MyMatrix4x4 lhs, Vector4 vector);
         MyMatrix4x4 operator *(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
