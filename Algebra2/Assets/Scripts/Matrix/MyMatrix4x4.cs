@@ -1,5 +1,4 @@
 ﻿using CustomMath;
-using MyQuat;
 using UnityEngine;
 
 namespace Matrix
@@ -19,7 +18,7 @@ namespace Matrix
             determinant
         transpose
             inverse
-            */
+            
         Determinant(MyMatrix4x4 m);
         Inverse(MyMatrix4x4 m);
         Rotate(MyQuat.MyQuat q);
@@ -41,5 +40,6 @@ namespace Matrix
         MyMatrix4x4 operator *(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
         bool operator ==(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
         bool operator !=(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
+        */
     }
 }
