@@ -32,7 +32,10 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
-
+        /// <summary>
+        /// Calcula y devuelve los angulos de Euler de un cuaternion en forma de un Vec3
+        /// </summary>
+        /// <returns></returns>
         public Vec3 eulerAngles()
         {
             // Calculate the yaw (Z rotation).
@@ -45,70 +48,161 @@ namespace Quat
             return new Vec3(yaw, pitch, roll);
         }
 
-
+        /// <summary>
+        /// Calcula y devuelve un nuevo cuaternion normalizado (magnitud/longitud = 1) o si la magnitud es 0 devuelve el cuaternion identidad 
+        /// </summary>
+        /// <returns> nuevo cuaternion normalizado o la identidad </returns>
         public MyQuat normalized()
         {
             float magnitude = Mathf.Sqrt(X * X + Y * Y + Z * Z + W * W);
 
             if (magnitude > 0)
             {
+                // Divide cada componente por la magnitud para normalizar el cuaternión
                 return new MyQuat(X / magnitude, Y / magnitude, Z / magnitude, W / magnitude);
             }
 
-            // If the magnitude is zero, return the original quaternion
+            // Si la magnitud es zero, retorna el cuaternion identidad
             return identity;
         }
 
+        /// <summary>
+        /// Calcula el angulo en radianes entre dos cuaterniones
+        /// </summary>
+        /// <param name="a"> Cuaternion 1 </param>
+        /// <param name="b"> Cuaternion 2 </param>
+        /// <returns> angulo entre a y b en radianes </returns>
         public static float Angle(MyQuat a, MyQuat b)
         {
-            //tratamos a los cuaterniones como vectores y les hacemos el producto escalar para medir la alineacion entre estos
-            //y se toma el valor absoluto para, principalmente, devolver un valor positivo
-            float absDotProduct = Math.Abs(Dot(a, b));
-            //como el producto escalar esta directamente relacionado con el coseno del angulo
-            //al aplicar el arcocoseo nos devuelve el angulo en sí en radianes.
+            // Tratamos a los cuaterniones como vectores y les hacemos el producto escalar para medir la alineacion entre 
+            // estos y se toma el valor absoluto para, principalmente, devolver un valor positivo
+            float absDotProduct = Mathf.Abs(Dot(a, b));
+            // Como el producto escalar esta directamente relacionado con el coseno del angulo
+            // al aplicar el arcocoseo nos devuelve el angulo en sí en radianes.
             return Mathf.Acos(absDotProduct);
         }
 
+        /// <summary>
+        /// Crea un cuaternion que representa la rotacion alrededor del eje especificado y con el angulo especificado.
+        /// </summary>
+        /// <param name="angle"> Angulo que se quiere rotar </param>
+        /// <param name="axis"> Eje de rotacion (debe estar normalizado) </param>
+        /// <returns> cuaternion con la rotacion requerida </returns>
         public static MyQuat AngleAxis(float angle, Vec3 axis)
         {
-            return identity;
+            // Calcula la mitad del angulo
+            float halfAngle = angle * 0.5f;
+
+            // Calcula el seno del angulo
+            float sinHalfAngle = Mathf.Sin(halfAngle);
+
+            MyQuat newQuat = new MyQuat();
+            // Se multiplican las componentes por el seno del ángulo medio permitiendo que el cuaternion represente
+            // una rotacion alrededor del eje especificado.
+            newQuat.X = axis.x * sinHalfAngle;
+            newQuat.Y = axis.y * sinHalfAngle;
+            newQuat.Z = axis.z * sinHalfAngle;
+            newQuat.W = Mathf.Cos(halfAngle);
+
+            return newQuat;
         }
 
+        /// <summary>
+        /// Crea un cuaternion que representa la rotacion alrededor del eje especificado y con el angulo especificado.
+        /// </summary>
+        /// <param name="axis"> Eje de rotacion (debe estar normalizado) </param>
+        /// <param name="angle"> Angulo que se quiere rotar </param>
+        /// <returns> cuaternion con la rotacion requerida </returns>
         public static MyQuat AxisAngle(Vec3 axis, float angle)
         {
-            return identity;
+            // Calcula el ángulo medio y el seno del ángulo medio
+            float halfAngle = angle * 0.5f;
+            float sinHalfAngle = Mathf.Sin(halfAngle);
+
+            // Crea los componentes del cuaternión
+            MyQuat quaternion = new MyQuat();
+            quaternion.X = axis.x * sinHalfAngle;
+            quaternion.Y = axis.y * sinHalfAngle;
+            quaternion.Z = axis.z * sinHalfAngle;
+            quaternion.W = Mathf.Cos(halfAngle);
+
+            return quaternion;
         }
 
+        /// <summary>
+        /// Calcula el producto escalar entre dos cuaterniones, lo cual permite medir la similitud o alineacion entre
+        /// ellos. Un valor mas alto indica una mayor similitud o alineacion.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns> similitud o alineacion entre cuanternion a y b </returns>
         static float Dot(MyQuat a, MyQuat b)
         {
             return a.W * b.W + a.X * b.X + a.Y * b.Y + a.Z * b.Z;
         }
 
+        /// <summary>
+        /// Toma un Vec3 que contiene angulos de Euler en grados y devuelve un cuaternion que representa la misma rotación.
+        /// </summary>
+        /// <param name="euler"> Vec3 en euler para ser pasado a cuaternion </param>
+        /// <returns> Cuaternion basado en el Vec3 </returns>
         public static MyQuat Euler(Vec3 euler)
         {
-            float yaw = euler.y * (float)Math.PI / 180f; // Yaw (rotacion vertical)
-            float pitch = euler.x * (float)Math.PI / 180f; // Pitch (rotacion horizontal)
-            float roll = euler.z * (float)Math.PI / 180f; // Roll (rotacion profundidad )
+            // Convertir los angulos de Euler de grados a radianes
+            float yaw = euler.y * Mathf.PI / 180f; // Yaw (rotación vertical)
+            float pitch = euler.x * Mathf.PI / 180f; // Pitch (rotación horizontal)
+            float roll = euler.z * Mathf.PI / 180f; // Roll (rotación de profundidad)
 
-            float cy = (float)Math.Cos(yaw * 0.5f);
-            float sy = (float)Math.Sin(yaw * 0.5f);
-            float cp = (float)Math.Cos(pitch * 0.5f);
-            float sp = (float)Math.Sin(pitch * 0.5f);
-            float cr = (float)Math.Cos(roll * 0.5f);
-            float sr = (float)Math.Sin(roll * 0.5f);
+            // Calcular los valores trigonometricos de los ángulos de Euler
+            float cosYaw = Mathf.Cos(yaw * 0.5f);
+            float sinYaw = Mathf.Sin(yaw * 0.5f);
+            float cosPitch = Mathf.Cos(pitch * 0.5f);
+            float sinPitch = Mathf.Sin(pitch * 0.5f);
+            float cosRoll = Mathf.Cos(roll * 0.5f);
+            float sinRoll = Mathf.Sin(roll * 0.5f);
 
-            MyQuat quaternion = new MyQuat();
-            quaternion.W = cy * cp * cr + sy * sp * sr;
-            quaternion.X = cy * cp * sr - sy * sp * cr;
-            quaternion.Y = sy * cp * sr + cy * sp * cr;
-            quaternion.Z = sy * cp * cr - cy * sp * sr;
+            // Construir el cuaternión utilizando los valores calculados
+            MyQuat newQuat = new MyQuat();
+            // Calculos necesarios para convertir de euler a cuaternion
+            newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+            newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+            newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
+            newQuat.Z = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
 
-            return quaternion;
+            return newQuat;
         }
-
+        
+        /// <summary>
+        /// Toma 3 floats que representan un Vec3 de Euler en grados y devuelve un cuaternion que representa la misma rotación.
+        /// </summary>
+        /// <param name="x"> Componente X del vector </param>
+        /// <param name="y"> Componente Y del vector </param>
+        /// <param name="z"> Componente Z del vector </param>
+        /// <returns> Retorna el vec3 convertido a cuaternion </returns>
         public static MyQuat Euler(float x, float y, float z)
         {
-            return identity;
+            // Convertir los angulos de Euler de grados a radianes
+            float yaw = y * Mathf.PI / 180f; // Yaw (rotación vertical)
+            float pitch = x * Mathf.PI / 180f; // Pitch (rotación horizontal)
+            float roll = z * Mathf.PI / 180f; // Roll (rotación de profundidad)
+
+            // Calcular los valores trigonometricos de los ángulos de Euler
+            float cosYaw = Mathf.Cos(yaw * 0.5f);
+            float sinYaw = Mathf.Sin(yaw * 0.5f);
+            float cosPitch = Mathf.Cos(pitch * 0.5f);
+            float sinPitch = Mathf.Sin(pitch * 0.5f);
+            float cosRoll = Mathf.Cos(roll * 0.5f);
+            float sinRoll = Mathf.Sin(roll * 0.5f);
+
+            // Construir el cuaternión utilizando los valores calculados
+            MyQuat newQuat = new MyQuat();
+            // Calculos necesarios para convertir de euler a cuaternion
+            newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+            newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+            newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
+            newQuat.Z = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+
+            return newQuat;
         }
 
         //que tan desplazado esta del origen
@@ -131,16 +225,15 @@ namespace Quat
 
         public static MyQuat Lerp(MyQuat a, MyQuat b, float t)
         {
-            t = Math.Max(0f, Math.Min(1f, t)); // Clamp t between 0 and 1
+            t = Mathf.Max(0f, Mathf.Min(1f, t)); // Clamp t between 0 and 1
 
-            // Calculate the interpolated quaternion components
+            // Calculate the interpolated MyQuat components
             float lerpX = a.X + (b.X - a.X) * t;
             float lerpY = a.Y + (b.Y - a.Y) * t;
             float lerpZ = a.Z + (b.Z - a.Z) * t;
             float lerpW = a.W + (b.W - a.W) * t;
 
-            // Create and return the interpolated quaternion
-            return new MyQuat { X = lerpX, Y = lerpY, Z = lerpZ, W = lerpW };
+            return new MyQuat(lerpX, lerpY, lerpZ, lerpW);
         }
 
         public static MyQuat LerpUnclamped(MyQuat a, MyQuat b, float t)
@@ -150,12 +243,29 @@ namespace Quat
 
         public static MyQuat LookRotation(Vec3 forward)
         {
-            return identity;
+            // Crea un vector que representa la nueva dirección hacia adelante
+            Vec3 newForward = forward.Normalized;
+
+            // Crea un vector que representa la direccion hacia adelante base
+            Vec3 defaultForward = Vec3.Forward;
+
+            // Se calcula el producto cruz para determinar la perpendicular a ambos, dando el eje de rotacion necesario
+            // para alinear los vectores hacia adelante predeterminado y nuevo en la función 
+            Vec3 rotationAxis = Vec3.Cross(defaultForward, newForward);
+
+            // Calcula el arco coseno para sacar el angulo entre los dos vectores
+            // El producto punto entre dos vectores normalizados resulta en el coseno del angulo entre ellos (Acos del cos = angulo)
+            float rotationAngle = Mathf.Acos(Vec3.Dot(defaultForward, newForward));
+
+            // Crea un cuaternión que representa la rotación
+            MyQuat rotationQuat = AxisAngle(rotationAxis, rotationAngle);
+
+            return rotationQuat;
         }
+
 
         public static MyQuat LookRotation(Vec3 forward, [DefaultValue("Vec3.up")] Vec3 upwards)
         {
-            return identity;
         }
 
         public void Normalize()
@@ -224,7 +334,7 @@ namespace Quat
 
         public static Vec3 operator *(MyQuat rotation, Vec3 point)
         {
-            // Perform quaternion multiplication with the vector
+            // Perform MyQuat multiplication with the vector
             float num1 = rotation.Y * point.z - rotation.Z * point.y;
             float num2 = rotation.Z * point.x - rotation.X * point.z;
             float num3 = rotation.X * point.y - rotation.Y * point.x;
@@ -254,10 +364,10 @@ namespace Quat
             float epsilon = 1e-12f;
 
             // Compare los componentes individuales de los cuaterniones con una tolerancia de epsilon
-            return Math.Abs(lhs.X - rhs.X) < epsilon &&
-                   Math.Abs(lhs.Y - rhs.Y) < epsilon &&
-                   Math.Abs(lhs.Z - rhs.Z) < epsilon &&
-                   Math.Abs(lhs.W - rhs.W) < epsilon;
+            return Mathf.Abs(lhs.X - rhs.X) < epsilon &&
+                   Mathf.Abs(lhs.Y - rhs.Y) < epsilon &&
+                   Mathf.Abs(lhs.Z - rhs.Z) < epsilon &&
+                   Mathf.Abs(lhs.W - rhs.W) < epsilon;
         }
 
         public static bool operator !=(MyQuat lhs, MyQuat rhs)
@@ -266,10 +376,10 @@ namespace Quat
             float epsilon = 1e-05f;
 
             // Compare los componentes individuales de los cuaterniones con una tolerancia de epsilon
-            return !(Math.Abs(lhs.X - rhs.X) < epsilon &&
-                     Math.Abs(lhs.Y - rhs.Y) < epsilon &&
-                     Math.Abs(lhs.Z - rhs.Z) < epsilon &&
-                     Math.Abs(lhs.W - rhs.W) < epsilon);
+            return !(Mathf.Abs(lhs.X - rhs.X) < epsilon &&
+                     Mathf.Abs(lhs.Y - rhs.Y) < epsilon &&
+                     Mathf.Abs(lhs.Z - rhs.Z) < epsilon &&
+                     Mathf.Abs(lhs.W - rhs.W) < epsilon);
         }
     }
 }
