@@ -292,9 +292,9 @@ namespace Quat
             Vec3 normalizedUpwards = recalculatedUpwards.Normalized;
 
             // Calcula el angulo de rotacion entre el vector upwards recalculado y el vector upwards original
-            float rotationAngle = Mathf.Acos(Vec3.Dot(newUpwards, normalizedUpwards));
+            float rotationAngle = Vec3.Angle(newUpwards, normalizedUpwards);
 
-            // Calcula el eje de rotacion utilizando el producto cruz entre el vector "hacia arriba" recalculado y el vector "hacia arriba" original
+            // Calcula el eje de rotacion utilizando el producto cruz entre el vector upwards recalculado y el vector upwards original
             Vec3 rotationAxis = Vec3.Cross(newUpwards, normalizedUpwards);
 
             // Crea un cuaternion que representa la rotacion utilizando el eje de rotacion y el angulo calculados
@@ -325,23 +325,103 @@ namespace Quat
             return quat.normalized();
         }
 
-        //TODO
+        /// <summary>
+        /// Rota gradualmente desde un cuaternion inicial hacia un cuaternion objetivo, limitando el angulo maximo de rotacion.
+        /// </summary>
+        /// <param name="from"> Cuaternion inicial </param>
+        /// <param name="to"> Cuaternion final </param>
+        /// <param name="maxDegreesDelta"> El angulo maximo de rotacion en grados </param>
+        /// <returns> El cuaternion resultante despues de la rotacion </returns>
         public static MyQuat RotateTowards(MyQuat from, MyQuat to, float maxDegreesDelta)
         {
-            return identity;
+            // Convierte el angulo maximo de rotacion de grados a radianes
+            float maxRadiansDelta = maxDegreesDelta * Mathf.Deg2Rad;
+
+            // Calcula el angulo entre los cuaterniones de inicio y fin
+            float angle = Angle(from, to);
+
+            // Limita el angulo a rotar segun el angulo maximo de rotacion
+            float t = Mathf.Min(1f, maxRadiansDelta / angle);
+
+            // Interpola linealmente entre los cuaterniones de inicio y objetivo segun el factor de interpolacion t
+            MyQuat result = SlerpUnclamped(from, to, t);
+
+            // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
+            return result.normalized();
         }
 
-        //TODO
+        /// <summary>
+        /// Realiza una interpolacion esferica entre dos cuaterniones con un factor de interpolacion restringido.
+        /// </summary>
+        /// <param name="a"> Cuaternion inicial </param>
+        /// <param name="b"> Cuaternion final </param>
+        /// <param name="t"> El factor de interpolacion restringido </param>
+        /// <returns> El cuaternion resultante despues de la interpolacion </returns>
         public static MyQuat Slerp(MyQuat a, MyQuat b, float t)
         {
-            return identity;
+            // Clampa el factor de interpolación entre 0 y 1 para asegurarse de que esté dentro del rango válido
+            float tClamped = Mathf.Max(0f, Mathf.Min(1f, t));
+
+            // Realiza la interpolación esférica utilizando el factor de interpolación clamped
+            return SlerpUnclamped(a, b, tClamped);
         }
 
-        //TODO
+
+        /// <summary>
+        /// Realiza una interpolacion esferica sin restricciones entre dos cuaterniones.
+        /// </summary>
+        /// <param name="a"> El cuaternion de inicio </param>
+        /// <param name="b"> El cuaternion final </param>
+        /// <param name="t"> El factor de interpolacion </param>
+        /// <returns> El cuaternion resultante despues de la interpolacion </returns>
         public static MyQuat SlerpUnclamped(MyQuat a, MyQuat b, float t)
         {
-            return identity;
+            // Calcula el producto punto entre los cuaterniones de inicio y objetivo
+            float dotProduct = Dot(a, b);
+
+            // Si el producto punto es negativo, invierte uno de los cuaterniones
+            if (dotProduct < 0f)
+            {
+                b = Inverse(b);
+                dotProduct = -dotProduct;
+            }
+
+            // Define el umbral de diferencia angular para utilizar la interpolacion lineal en lugar de la interpolacion esferica
+            const float threshold = 0.99995f;
+
+            // Si los cuaterniones son casi colineales, utiliza la interpolacion lineal
+            MyQuat result;
+            if (dotProduct > threshold)
+            {
+                // Esto es mas eficiente que "return LerpUnclamped(a, b, t).normalized();". Debido a que en esta manera se
+                // crean 2 cuanternione diferentes, uno en LerpUnclamped y otro en normalized.
+                result = LerpUnclamped(a, b, t);
+                result.Normalize();
+                return result;
+            }
+
+            // Calcula el angulo entre los cuaterniones de inicio y objetivo
+            float angle = Angle(a,b);
+
+            // Calcula los factores de interpolación para los cuaterniones
+            // A medida que t aumenta, factorA disminuye gradualmente, lo que permite que el cuaternion b tenga mas influencia en la interpolacion final.
+            float factorA = Mathf.Sin((1f - t) * angle);
+            float factorB = Mathf.Sin(t * angle);
+
+            // Realiza la interpolacion esferica utilizando los factores de interpolacion
+            result = new MyQuat(
+                factorA * a.X + factorB * b.X,
+                factorA * a.Y + factorB * b.Y,
+                factorA * a.Z + factorB * b.Z,
+                factorA * a.W + factorB * b.W
+            );
+
+            // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
+            result.Normalize();
+            
+            return result;
         }
+
 
         //TODO add summary
         void Set(float newX, float newY, float newZ, float newW)
