@@ -1,3 +1,4 @@
+using System;
 using CustomMath;
 using UnityEngine;
 using UnityEngine.Internal;
@@ -27,8 +28,45 @@ namespace Quat
 
         #endregion
 
-        //TODO
-        //this[int index]
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0:
+                        return X;
+                    case 1:
+                        return Y;
+                    case 2:
+                        return Z;
+                    case 3:
+                        return W;
+                    default:
+                        throw new IndexOutOfRangeException("Invalid Quaternion index!");
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0:
+                        X = value;
+                        break;
+                    case 1:
+                        Y = value;
+                        break;
+                    case 2:
+                        Z = value;
+                        break;
+                    case 3:
+                        W = value;
+                        break;
+                    default:
+                        throw new IndexOutOfRangeException("Invalid Quaternion index!");
+                }
+            }
+        }
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
@@ -268,24 +306,24 @@ namespace Quat
         }
 
         /// <summary>
-        /// Crea un cuaternion que representa una rotacion para mirar hacia la direccion especificada, con un vector de direccion "hacia arriba" opcional.
+        /// Crea un cuaternion que representa una rotacion para mirar hacia la direccion especificada, con un vector de direccion upwards opcional.
         /// </summary>
         /// <param name="forward"> Direccion hacia la cual se desea mirar </param>
-        /// <param name="upwards"> Direccion "hacia arriba" relativa </param>
-        /// <returns> Cuaternion de rotacion para mirar hacia la direccion especificada con la direccion "hacia arriba" relativa </returns>
+        /// <param name="upwards"> Direccion upwards relativa </param>
+        /// <returns> Cuaternion de rotacion para mirar hacia la direccion especificada con la direccion upwards relativa </returns>
         public static MyQuat LookRotation(Vec3 forward, [DefaultValue("Vec3.Up")] Vec3 upwards)
         {
             // Normaliza el vector de direccion hacia adelante
             Vec3 newForward = forward.Normalized;
 
-            // Normaliza el vector de dirección "hacia arriba" relativa
+            // Normaliza el vector de dirección upwards relativa
             Vec3 newUpwards = upwards.Normalized;
 
             // Calcula el producto cruz entre el vector de direccion hacia adelante predeterminado y el vector de direccion hacia adelante nuevo
             // Esto nos da el eje de rotacion necesario para alinear los vectores hacia adelante predeterminado y nuevo en la funcion
             Vec3 right = Vec3.Cross(newForward, newUpwards);
 
-            // Recalcula el vector "hacia arriba" utilizando el producto cruz entre el vector de direccion hacia adelante y el vector hacia la derecha
+            // Recalcula el vector upwards utilizando el producto cruz entre el vector de direccion hacia adelante y el vector hacia la derecha
             Vec3 recalculatedUpwards = Vec3.Cross(right, newForward);
 
             // Normaliza el vector upwards recalculado para asegurarse de que tenga una longitud/magnitud de 1
@@ -401,7 +439,7 @@ namespace Quat
             }
 
             // Calcula el angulo entre los cuaterniones de inicio y objetivo
-            float angle = Angle(a,b);
+            float angle = Angle(a, b);
 
             // Calcula los factores de interpolación para los cuaterniones
             // A medida que t aumenta, factorA disminuye gradualmente, lo que permite que el cuaternion b tenga mas influencia en la interpolacion final.
@@ -418,12 +456,18 @@ namespace Quat
 
             // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
             result.Normalize();
-            
+
             return result;
         }
 
 
-        //TODO add summary
+        /// <summary>
+        /// Modifica los componentes del cuaternion con los nuevos valores especificados.
+        /// </summary>
+        /// <param name="newX"> El nuevo valor de X </param>
+        /// <param name="newY"> El nuevo valor de Y </param>
+        /// <param name="newZ"> El nuevo valor de Z </param>
+        /// <param name="newW"> El nuevo valor de W </param>
         void Set(float newX, float newY, float newZ, float newW)
         {
             X = newX;
@@ -432,76 +476,144 @@ namespace Quat
             W = newW;
         }
 
-        //TODO
+        /// <summary>
+        /// Modifica los componentes del cuaternion con los nuevos valores especificados.
+        /// </summary>
+        /// <param name="a"> Valores a copiar </param>
+        void Set(MyQuat a)
+        {
+            X = a.X;
+            Y = a.Y;
+            Z = a.Z;
+            W = a.W;
+        }
+
+        /// <summary>
+        /// Establece el cuaternion para representar una rotacion desde una direccion inicial a una direccion final.
+        /// </summary>
+        /// <param name="fromDirection"> La direccion inicial </param>
+        /// <param name="toDirection"> La direccion final </param>
         public void SetFromToRotation(Vec3 fromDirection, Vec3 toDirection)
         {
+            Set(FromToRotation(fromDirection, toDirection));
         }
 
-        //TODO
+
+        /// <summary>
+        /// Establece el cuaternion para que apunte en la direccion especificada por el vector view.
+        /// </summary>
+        /// <param name="view"> Vector de direccion hacia el cual se quiere apuntar </param>
         public void SetLookRotation(Vec3 view)
         {
+            Set(LookRotation(view));
         }
 
-        //TODO
+        /// <summary>
+        /// Crea un cuaternion que representa una rotacion para mirar hacia la direccion especificada, con un vector de direccion upwards opcional.
+        /// </summary>
+        /// <param name="view"> Direccion hacia la cual se desea mirar </param>
+        /// <param name="up"> Direccion upwards relativa </param>
         public void SetLookRotation(Vec3 view, [DefaultValue("Vec3.up")] Vec3 up)
         {
+            Set(LookRotation(view, up));
         }
 
-        //TODO
+        /// <summary>
+        /// Obtiene el angulo y el eje de rotacion representados por el cuaternion.
+        /// </summary>
+        /// <param name="angle"> Variable de salida para almacenar el angulo de rotacion en radianes </param>
+        /// <param name="axis"> Variable de salida para almacenar el eje de rotacion como un vector de direccion </param>
         public void ToAngleAxis(out float angle, out Vec3 axis)
         {
-            angle = 0f;
-            axis = Vec3.Zero;
+            // Calcula el angulo de rotacion
+            angle = 2 * Mathf.Acos(W);
+
+            // Calcula el factor de escala para obtener los componentes del eje de rotacion
+            float scale = Mathf.Sqrt(1 - W * W);
+
+            // Si el cuaternion es casi un cuaternion de identidad, establece el eje de rotacion como el vector "up" predeterminado
+            if (scale < 0.001f)
+            {
+                axis = Vec3.Up;
+            }
+            else
+            {
+                // Calcula los componentes del eje de rotación dividiendo los componentes X, Y y Z del cuaternión por el factor de escala
+                axis = new Vec3(X / scale, Y / scale, Z / scale);
+            }
         }
 
-        //TODO add summary
+
+        /// <summary>
+        /// Realiza la multiplicacion de un cuaternion por un vector.
+        /// </summary>
+        /// <param name="rotation"> El cuaternion a multiplicar </param>
+        /// <param name="point"> El vector a multiplicar </param>
+        /// <returns> El resultado de la multiplicacion del cuaternion por el vector </returns>
         public static Vec3 operator *(MyQuat rotation, Vec3 point)
         {
-            // Perform MyQuat multiplication with the vector
+            // Realiza la multiplicación del cuaternión con el vector
             float num1 = rotation.Y * point.z - rotation.Z * point.y;
             float num2 = rotation.Z * point.x - rotation.X * point.z;
             float num3 = rotation.X * point.y - rotation.Y * point.x;
             float num4 = rotation.X * point.x + rotation.Y * point.y + rotation.Z * point.z;
 
-            // Calculate the resulting vector
+            // Calcula el vector resultante
             float resultX = (num4 * rotation.X + num1 * rotation.W) + (num3 * rotation.Z - num2 * rotation.Y);
             float resultY = (num4 * rotation.Y + num2 * rotation.W) + (num1 * rotation.X - num3 * rotation.Z);
             float resultZ = (num4 * rotation.Z + num3 * rotation.W) + (num2 * rotation.Y - num1 * rotation.X);
+
+            // Crea y devuelve un nuevo vector con los componentes resultantes
             return new Vec3(resultX, resultY, resultZ);
         }
 
-        //TODO add summary
+        /// <summary>
+        /// Realiza la multiplicación de dos cuaterniones.
+        /// </summary>
+        /// <param name="lhs"> Primer cuaternion </param>
+        /// <param name="rhs"> Segundo cuaternion </param>
+        /// <returns> El resultado de la multiplicacion de los dos cuaterniones </returns>
         public static MyQuat operator *(MyQuat lhs, MyQuat rhs)
         {
             MyQuat quat = new MyQuat();
             quat.W = (lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z);
             quat.X = (lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y);
-            quat.X = (lhs.Y * rhs.W + lhs.W * rhs.Y + lhs.Z * rhs.X - lhs.X * rhs.Z);
-            quat.X = (lhs.Z * rhs.W + lhs.W * rhs.Z - lhs.Y * rhs.X + lhs.X * rhs.Y);
+            quat.Y = (lhs.Y * rhs.W + lhs.W * rhs.Y + lhs.Z * rhs.X - lhs.X * rhs.Z);
+            quat.Z = (lhs.Z * rhs.W + lhs.W * rhs.Z - lhs.Y * rhs.X + lhs.X * rhs.Y);
 
             return quat;
         }
 
-        //TODO add summary
+        /// <summary>
+        /// Compara dos cuaterniones para determinar si son iguales.
+        /// </summary>
+        /// <param name="lhs"> El primer cuaternion </param>
+        /// <param name="rhs"> El segundo cuaternion </param>
+        /// <returns> True si los cuaterniones son iguales, False de lo contrario </returns>
         public static bool operator ==(MyQuat lhs, MyQuat rhs)
         {
-            // Definir un valor epsilon para comparar valores de punto flotante
+            // Define un valor epsilon para comparar valores de punto flotante
             float epsilon = 1e-12f;
 
-            // Compare los componentes individuales de los cuaterniones con una tolerancia de epsilon
+            // Compara los componentes individuales de los cuaterniones con una tolerancia de epsilon
             return Mathf.Abs(lhs.X - rhs.X) < epsilon &&
                    Mathf.Abs(lhs.Y - rhs.Y) < epsilon &&
                    Mathf.Abs(lhs.Z - rhs.Z) < epsilon &&
                    Mathf.Abs(lhs.W - rhs.W) < epsilon;
         }
 
-        //TODO add summary
+        /// <summary>
+        /// Compara dos cuaterniones para determinar si son diferentes.
+        /// </summary>
+        /// <param name="lhs"> Primer cuaternion </param>
+        /// <param name="rhs"> Segundo cuaternion </param>
+        /// <returns> True si los cuaterniones son diferentes, False de lo contrario </returns>
         public static bool operator !=(MyQuat lhs, MyQuat rhs)
         {
-            // Definir un valor epsilon para comparar valores de punto flotante
+            // Define un valor epsilon para comparar valores de punto flotante
             float epsilon = 1e-05f;
 
-            // Compare los componentes individuales de los cuaterniones con una tolerancia de epsilon
+            // Compara los componentes individuales de los cuaterniones con una tolerancia de epsilon
             return !(Mathf.Abs(lhs.X - rhs.X) < epsilon &&
                      Mathf.Abs(lhs.Y - rhs.Y) < epsilon &&
                      Mathf.Abs(lhs.Z - rhs.Z) < epsilon &&
