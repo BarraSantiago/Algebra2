@@ -64,6 +64,26 @@ namespace Matrix
             this.d4 = d4;
         }
 
+        public MyMatrix4x4()
+        {
+            this.a1 = new float();
+            this.a2 = new float();
+            this.a3 = new float();
+            this.a4 = new float();
+            this.b1 = new float();
+            this.b2 = new float();
+            this.b3 = new float();
+            this.b4 = new float();
+            this.c1 = new float();
+            this.c2 = new float();
+            this.c3 = new float();
+            this.c4 = new float();
+            this.d1 = new float();
+            this.d2 = new float();
+            this.d3 = new float();
+            this.d4 = new float();
+        }
+
         public static MyMatrix4x4 zero = new MyMatrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         public static MyMatrix4x4 identity = new MyMatrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
@@ -71,12 +91,11 @@ namespace Matrix
         this[int index]
         this[int row, int column]
         rotation
-            lossyScale
+        lossyScale
         isIdentity
-            determinant
+        determinant
         transpose
-            inverse
-            
+        inverse
         Determinant(MyMatrix4x4 m);
         Inverse(MyMatrix4x4 m);
         Rotate(MyQuat.MyQuat q);

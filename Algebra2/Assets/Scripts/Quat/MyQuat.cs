@@ -73,7 +73,7 @@ namespace Quat
         /// <summary>
         /// Calcula y devuelve los angulos de Euler de un cuaternion en forma de un Vec3
         /// </summary>
-        /// <returns></returns>
+        /// <returns> Transformacion a Euler </returns>
         public Vec3 eulerAngles()
         {
             // Calculate the yaw (Z rotation).
@@ -89,7 +89,7 @@ namespace Quat
         /// <summary>
         /// Calcula y devuelve un nuevo cuaternion normalizado (magnitud/longitud = 1) o si la magnitud es 0 devuelve el cuaternion identidad.
         /// </summary>
-        /// <returns> nuevo cuaternion normalizado o la identidad </returns>
+        /// <returns> Nuevo cuaternion normalizado o la identidad </returns>
         public MyQuat normalized()
         {
             float magnitude = Mathf.Sqrt(X * X + Y * Y + Z * Z + W * W);
@@ -116,7 +116,7 @@ namespace Quat
             // estos y se toma el valor absoluto para, principalmente, devolver un valor positivo
             float absDotProduct = Mathf.Abs(Dot(a, b));
             // Como el producto escalar esta directamente relacionado con el coseno del angulo
-            // al aplicar el arcocoseo nos devuelve el angulo en sí en radianes.
+            // al aplicar el arcocoseo nos devuelve el angulo en radianes.
             return Mathf.Acos(absDotProduct);
         }
 
@@ -144,7 +144,7 @@ namespace Quat
             // Calcula el seno del angulo
             float sinHalfAngle = Mathf.Sin(halfAngle);
 
-            // Se multiplican las componentes por el seno del ángulo medio permitiendo que el cuaternion represente
+            // Se multiplican las componentes por el seno del angulo medio permitiendo que el cuaternion represente
             // una rotacion alrededor del eje especificado.
             MyQuat newQuat = new MyQuat();
             newQuat.X = axis.x * sinHalfAngle;
@@ -165,7 +165,7 @@ namespace Quat
         static float Dot(MyQuat a, MyQuat b)
         {
             // Calcula el producto escalar entre los cuaterniones
-            return a.W * b.W + a.X * b.X + a.Y * b.Y + a.Z * b.Z;
+            return a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W;
         }
 
         /// <summary>
@@ -188,21 +188,21 @@ namespace Quat
         public static MyQuat Euler(float x, float y, float z)
         {
             // Convertir los angulos de Euler de grados a radianes
-            float yaw = y * Mathf.PI / 180f; // Yaw (rotacion vertical)
-            float pitch = x * Mathf.PI / 180f; // Pitch (rotacion horizontal)
-            float roll = z * Mathf.PI / 180f; // Roll (rotacion de profundidad)
+            float yaw = y * Mathf.Deg2Rad * 0.5f; // Yaw (rotacion vertical)
+            float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch (rotacion horizontal)
+            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll (rotacion de profundidad)
 
             // Calcular los valores trigonometricos de los angulos de Euler
-            float cosYaw = Mathf.Cos(yaw * 0.5f);
-            float sinYaw = Mathf.Sin(yaw * 0.5f);
-            float cosPitch = Mathf.Cos(pitch * 0.5f);
-            float sinPitch = Mathf.Sin(pitch * 0.5f);
-            float cosRoll = Mathf.Cos(roll * 0.5f);
-            float sinRoll = Mathf.Sin(roll * 0.5f);
+            float cosYaw = Mathf.Cos(yaw);
+            float sinYaw = Mathf.Sin(yaw);
+            float cosPitch = Mathf.Cos(pitch);
+            float sinPitch = Mathf.Sin(pitch);
+            float cosRoll = Mathf.Cos(roll);
+            float sinRoll = Mathf.Sin(roll);
 
-            // Construir el cuaternion utilizando los valores calculados
             MyQuat newQuat = new MyQuat();
-            // Calculos necesarios para convertir de euler a cuaternion
+            // Construir el cuaternion utilizando los valores calculados
+            // Calculos necesarios para convertir de Euler a cuaternion
             newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
             newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
             newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
@@ -270,7 +270,7 @@ namespace Quat
         /// <returns> Cuaternion interpolado normalizado </returns>
         public static MyQuat Lerp(MyQuat a, MyQuat b, float t)
         {
-            // Restringe el valor de interpolación dentro del rango de 0 a 1
+            // Restringe el valor de interpolacion dentro del rango de 0 a 1
             float tClamped = Mathf.Max(0f, Mathf.Min(1f, t));
 
             // Realiza la interpolacion lineal utilizando LerpUnclamped
@@ -316,7 +316,7 @@ namespace Quat
             // Normaliza el vector de direccion hacia adelante
             Vec3 newForward = forward.Normalized;
 
-            // Normaliza el vector de dirección upwards relativa
+            // Normaliza el vector de direccion upwards relativa
             Vec3 newUpwards = upwards.Normalized;
 
             // Calcula el producto cruz entre el vector de direccion hacia adelante predeterminado y el vector de direccion hacia adelante nuevo
@@ -397,10 +397,10 @@ namespace Quat
         /// <returns> El cuaternion resultante despues de la interpolacion </returns>
         public static MyQuat Slerp(MyQuat a, MyQuat b, float t)
         {
-            // Clampa el factor de interpolación entre 0 y 1 para asegurarse de que esté dentro del rango válido
+            // Restringe el factor de interpolacion entre 0 y 1 para asegurarse de que este dentro del rango valido
             float tClamped = Mathf.Max(0f, Mathf.Min(1f, t));
 
-            // Realiza la interpolación esférica utilizando el factor de interpolación clamped
+            // Realiza la interpolacion esferica utilizando el factor de interpolacion clamped
             return SlerpUnclamped(a, b, tClamped);
         }
 
@@ -438,10 +438,10 @@ namespace Quat
                 return result;
             }
 
-            // Calcula el angulo entre los cuaterniones de inicio y objetivo
+            // Calcula el angulo entre los cuaterniones inicial y final
             float angle = Angle(a, b);
 
-            // Calcula los factores de interpolación para los cuaterniones
+            // Calcula los factores de interpolacion para los cuaterniones
             // A medida que t aumenta, factorA disminuye gradualmente, lo que permite que el cuaternion b tenga mas influencia en la interpolacion final.
             float factorA = Mathf.Sin((1f - t) * angle);
             float factorB = Mathf.Sin(t * angle);
@@ -482,10 +482,7 @@ namespace Quat
         /// <param name="a"> Valores a copiar </param>
         void Set(MyQuat a)
         {
-            X = a.X;
-            Y = a.Y;
-            Z = a.Z;
-            W = a.W;
+            Set(a.X, a.Y, a.Z, a.W);
         }
 
         /// <summary>
