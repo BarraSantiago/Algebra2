@@ -1,39 +1,26 @@
 ﻿using System;
+using Quat;
+using UnityEngine;
 
 namespace Matrix
 {
     public class MyMatrix4x4
     {
-        #region Variables
-
         public float[,] matrix;
-        public float a1;
-        public float a2;
-        public float a3;
-        public float a4;
-        public float b1;
-        public float b2;
-        public float b3;
-        public float b4;
-        public float c1;
-        public float c2;
-        public float c3;
-        public float c4;
-        public float d1;
-        public float d2;
-        public float d3;
-        public float d4;
+        private const int MaxRows = 4;
+        private const int MaxColumns = 4;
+        private const int TotalSize = 16;
 
-        #endregion
-
+        #region Constructors
+        
         public MyMatrix4x4()
         {
-            matrix = new float[4, 4];
+            matrix = new float[MaxRows, MaxColumns];
         }
 
         public MyMatrix4x4(float[,] data)
         {
-            if (data.GetLength(0) != 4 || data.GetLength(1) != 4)
+            if (data.GetLength(0) != MaxRows || data.GetLength(1) != MaxColumns)
             {
                 throw new ArgumentException("Matrix dimensions are invalid. Must be 4x4.");
             }
@@ -46,77 +33,121 @@ namespace Matrix
             float c1, float c2, float c3, float c4,
             float d1, float d2, float d3, float d4)
         {
-            this.a1 = a1;
-            this.a2 = a2;
-            this.a3 = a3;
-            this.a4 = a4;
-            this.b1 = b1;
-            this.b2 = b2;
-            this.b3 = b3;
-            this.b4 = b4;
-            this.c1 = c1;
-            this.c2 = c2;
-            this.c3 = c3;
-            this.c4 = c4;
-            this.d1 = d1;
-            this.d2 = d2;
-            this.d3 = d3;
-            this.d4 = d4;
+            matrix = new float[4, 4];
+            matrix[0, 0] = a1;
+            matrix[0, 1] = a2;
+            matrix[0, 2] = a3;
+            matrix[0, 3] = a4;
+            matrix[1, 0] = b1;
+            matrix[1, 1] = b2;
+            matrix[1, 2] = b3;
+            matrix[1, 3] = b4;
+            matrix[2, 0] = c1;
+            matrix[2, 1] = c2;
+            matrix[2, 2] = c3;
+            matrix[2, 3] = c4;
+            matrix[3, 0] = d1;
+            matrix[3, 1] = d2;
+            matrix[3, 2] = d3;
+            matrix[3, 3] = d4;
         }
 
-        public MyMatrix4x4()
+        public MyMatrix4x4(Vector4 column0, Vector4 column1, Vector4 column2, Vector4 column3)
         {
-            this.a1 = new float();
-            this.a2 = new float();
-            this.a3 = new float();
-            this.a4 = new float();
-            this.b1 = new float();
-            this.b2 = new float();
-            this.b3 = new float();
-            this.b4 = new float();
-            this.c1 = new float();
-            this.c2 = new float();
-            this.c3 = new float();
-            this.c4 = new float();
-            this.d1 = new float();
-            this.d2 = new float();
-            this.d3 = new float();
-            this.d4 = new float();
+            matrix = new float[4, 4];
+            matrix[0, 0] = column0.x;
+            matrix[0, 1] = column0.y;
+            matrix[0, 2] = column0.z;
+            matrix[0, 3] = column0.w;
+            matrix[1, 0] = column1.x;
+            matrix[1, 1] = column1.y;
+            matrix[1, 2] = column1.z;
+            matrix[1, 3] = column1.w;
+            matrix[2, 0] = column2.x;
+            matrix[2, 1] = column2.y;
+            matrix[2, 2] = column2.z;
+            matrix[2, 3] = column2.w;
+            matrix[3, 0] = column3.x;
+            matrix[3, 1] = column3.y;
+            matrix[3, 2] = column3.z;
+            matrix[3, 3] = column3.w;
         }
-
+        
+        #endregion
+        
         public static MyMatrix4x4 zero = new MyMatrix4x4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         public static MyMatrix4x4 identity = new MyMatrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+
+        public float this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= TotalSize)
+                    throw new IndexOutOfRangeException("Index out of range. The valid range is 0 to 15.");
+
+                int row = index / MaxRows;
+                int column = index % MaxColumns;
+                return matrix[row, column];
+            }
+            set
+            {
+                if (index < 0 || index >= TotalSize)
+                    throw new IndexOutOfRangeException("Index out of range. The valid range is 0 to 15.");
+
+                int row = index / MaxRows;
+                int column = index % MaxColumns;
+                matrix[row, column] = value;
+            }
+        }
+
+        public float this[int row, int column]
+        {
+            get
+            {
+                if (row < 0 || row >= MaxRows || column < 0 || column >= MaxColumns)
+                    throw new IndexOutOfRangeException("Indices out of range. The valid range is 0 to 3 for both row and column.");
+
+                return matrix[row, column];
+            }
+            set
+            {
+                if (row < 0 || row >= MaxRows || column < 0 || column >= MaxColumns)
+                    throw new IndexOutOfRangeException("Indices out of range. The valid range is 0 to 3 for both row and column.");
+
+                matrix[row, column] = value;
+            }
+        }
+
         /*
-        this[int index]
-        this[int row, int column]
-        rotation
-        lossyScale
-        isIdentity
-        determinant
-        transpose
-        inverse
-        Determinant(MyMatrix4x4 m);
-        Inverse(MyMatrix4x4 m);
-        Rotate(MyQuat.MyQuat q);
-        Scale(Vec3 vector);
-        Translate(Vec3 vector);
-        Transpose(MyMatrix4x4 m);
-        TRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
-        GetColumn(int index);
-        GetPosition();
-        GetRow(int index);
-        MultiplyPoint(Vec3 point);
-        MultiplyPoint3x4(Vec3 point);
-        MultiplyVector(Vec3 vector);
-        SetColumn(int index, Vector4 column);
-        SetRow(int index, Vector4 row);
-        SetTRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
-        ValidTRS();
-        Vector4 operator *(MyMatrix4x4 lhs, Vector4 vector);
-        MyMatrix4x4 operator *(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
-        bool operator ==(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
-        bool operator !=(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
+        MyQuat rotation(){}
+        public Vector3 lossyScale
+        public bool isIdentity;
+        public float determinant;
+        public Matrix4x4 transpose;
+        public Matrix4x4 inverse;
+        
+        float Determinant(MyMatrix4x4 m);
+        MyMatrix4x4 Inverse(MyMatrix4x4 m);
+        MyMatrix4x4 Rotate(MyQuat.MyQuat q);
+        static Matrix4x4 Scale(Vec3 vector);
+        public static Matrix4x4 Translate(Vec3 vector);
+        public static Matrix4x4 Transpose(MyMatrix4x4 m);
+        public static Matrix4x4 TRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
+        public Vector4 GetColumn(int index);
+        public Vector3 GetPosition()();
+        public Vector4 GetRow(int index);
+        public Vector3 MultiplyPoint(Vec3 point);
+        public Vector3 MultiplyPoint3x4(Vec3 point);
+        public Vector3 MultiplyVector(Vec3 vector);
+        public void SetColumn(int index, Vector4 column);
+        public void SetRow(int index, Vector4 row);
+        public void SetTRS(Vec3 pos, MyQuat.MyQuat q, Vec3 s);
+        public bool ValidTRS();
+        public static Vector4 operator *(MyMatrix4x4 lhs, Vector4 vector);
+        public static Matrix4x4 operator *(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
+        public static bool operator ==(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
+        public static bool operator !=(MyMatrix4x4 lhs, MyMatrix4x4 rhs);
         */
     }
 }

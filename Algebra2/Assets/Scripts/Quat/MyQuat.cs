@@ -9,6 +9,7 @@ namespace Quat
     {
         #region Variables
 
+        // TODO agregar data de cuaternion
         private float X { get; set; }
         private float Y { get; set; }
         private float Z { get; set; }
@@ -70,6 +71,7 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
+        //TODO agregar comentarios
         /// <summary>
         /// Calcula y devuelve los angulos de Euler de un cuaternion en forma de un Vec3
         /// </summary>
@@ -203,6 +205,7 @@ namespace Quat
             MyQuat newQuat = new MyQuat();
             // Construir el cuaternion utilizando los valores calculados
             // Calculos necesarios para convertir de Euler a cuaternion
+            // TODO agregar mas comentarios
             newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
             newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
             newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
@@ -346,11 +349,7 @@ namespace Quat
         /// </summary>
         public void Normalize()
         {
-            MyQuat normalizedQuat = normalized();
-            X = normalizedQuat.X;
-            Y = normalizedQuat.Y;
-            Z = normalizedQuat.Z;
-            W = normalizedQuat.W;
+            Set(normalized());
         }
 
         /// <summary>
@@ -388,6 +387,7 @@ namespace Quat
             return result.normalized();
         }
 
+        // TODO nombre de linea slerp
         /// <summary>
         /// Realiza una interpolacion esferica entre dos cuaterniones con un factor de interpolacion restringido.
         /// </summary>
@@ -564,8 +564,9 @@ namespace Quat
             return new Vec3(resultX, resultY, resultZ);
         }
 
+        //TODO agregar mas comentarios i*j = kj
         /// <summary>
-        /// Realiza la multiplicación de dos cuaterniones.
+        /// Realiza la multiplicacion de dos cuaterniones.
         /// </summary>
         /// <param name="lhs"> Primer cuaternion </param>
         /// <param name="rhs"> Segundo cuaternion </param>
