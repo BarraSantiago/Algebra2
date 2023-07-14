@@ -83,7 +83,6 @@ namespace Quat
         {
             // Proyectas el vector, usando la pryecsion con la profundidad crea un prisma
             // Calculate the yaw (Z rotation).
-            // Arco tangente de 
             float yaw = Mathf.Atan2(2 * X * Y + 2 * W * Z, 1 - 2 * X * X - 2 * Y * Y);
             // Calculate the pitch (Y rotation).
             float pitch = Mathf.Asin(2 * X * Z - 2 * W * Y);

@@ -13,6 +13,7 @@ namespace Matrix
         private const int TotalSize = 16;
 
         #region Constructors
+
         public MyMatrix4x4(float[,] data)
         {
             if (data.GetLength(0) != MaxRows || data.GetLength(1) != MaxColumns)
@@ -149,11 +150,11 @@ namespace Matrix
             {
                 // Extraer la escala, rotacion y traslacion de la matriz
                 Vec3 scale = lossyScale;
-                
+
                 MyMatrix4x4 rotationMatrix = new MyMatrix4x4(this[0, 0] / scale.x, this[0, 1] / scale.y,
-                            this[0, 2] / scale.z, 0f, this[1, 0] / scale.x, this[1, 1] / scale.y, 
-                            this[1, 2] / scale.z, 0f, this[2, 0] / scale.x, this[2, 1] / scale.y, 
-                            this[2, 2] / scale.z, 0f, 0f, 0f, 0f, 1f);
+                    this[0, 2] / scale.z, 0f, this[1, 0] / scale.x, this[1, 1] / scale.y,
+                    this[1, 2] / scale.z, 0f, this[2, 0] / scale.x, this[2, 1] / scale.y,
+                    this[2, 2] / scale.z, 0f, 0f, 0f, 0f, 1f);
 
                 // Obtener el cuaternion a partir de la matriz de rotacion
                 MyQuat quaternion = rotationMatrix.rotation;
@@ -161,21 +162,21 @@ namespace Matrix
                 return quaternion;
             }
         }
-        
+
         /// <summary>
         /// Obtiene la escala resultante de la matriz de transformacion.
         /// </summary>
         /// <returns> El vector que representa la escala resultante </returns>
         /// <remarks>
         /// Esta funcion calcula la escala resultante de la matriz de transformacion. La matriz de transformacion puede incluir una combinacion de rotacion, escala y traslacion.
-        /// La escala resultante es el factor de cambio en el tamaño de un objeto después de aplicar la matriz de transformacion.
-        /// Tenga en cuenta que esta funcion devuelve la escala "aparente" del objeto en el espacio del mundo, que puede verse afectada por la jerarquia de transformacion.
+        /// La escala resultante es el factor de cambio en el tamaño de un objeto despues de aplicar la matriz de transformacion.
+        /// Esta funcion devuelve la escala "aparente" del objeto en el espacio del mundo, que puede verse afectada por la jerarquia de transformacion.
         /// </remarks>
         public Vec3 lossyScale
         {
             get { return new Vec3(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude); }
         }
-        
+
         /// <summary>
         /// Indica si la matriz es una matriz identidad.
         /// </summary>
@@ -222,7 +223,7 @@ namespace Matrix
         /// </summary>
         /// <returns> El valor del determinante de la matriz </returns>
         /// <remarks>
-        /// El determinante de una matriz es un valor numérico que se calcula a partir de los elementos de la matriz.
+        /// El determinante de una matriz es un valor numerico que se calcula a partir de los elementos de la matriz.
         /// Representa una medida de la escala del espacio transformado por la matriz.
         /// Un determinante igual a cero indica que la matriz es singular y no tiene inversa.
         /// </remarks>
@@ -473,22 +474,29 @@ namespace Matrix
             return result;
         }
 
-        
+
         // TRS
         // TRANSFORMACION ROTACION ESCALA
         // MATRIZ QUE SE GENERA MULTIPLICA LAS MATRICES EN EL ORDEN ESPECIFICADO
         // MULTIPLICACION DE TRS REPRESENTA LA ROTACION DE UN OBJETO PADRE SOBRE UN OBJETO HIJO
         // LA MULTIPLICACION DE TRS A SOBRE TRS B (AxB) SE APLICAN LAS MODIFICACIONES DE B EN A
+
+        // Columna 1, 2 y 3: representan la direccion y magnitud de los 3 ejes ortogonales (en orden x, y, z)
+        // Columna 4: translation
+        // Diagonal principal: Escala
+        // Los 4 del centro represental la rotacion de X.
+        // 0,0 0,2 2,0 2,2 (es como una X) Rotacion de Y
+        // 0,0 0,1 1,0 1,1 (es un cuadrado) Rotacion de Z
         
         /// <summary>
         /// Crea una matriz de transformacion compuesta por una translacion, rotacion y escala.
         /// La matriz de transformacion combina los efectos de desplazamiento, rotacion y escala en un solo objeto.
         /// </summary>
         /// <param name="pos"> El vector que especifica la posicion de translacion </param>
-        /// <param name="q"> El cuaternion que representa la rotacion </param>
-        /// <param name="s"> El vector que especifica la escala en cada dimension (x, y, z) </param>
+        /// <param name="rotation"> El cuaternion que representa la rotacion </param>
+        /// <param name="scale"> El vector que especifica la escala en cada dimension (x, y, z) </param>
         /// <returns> La matriz de transformacion resultante </returns>
-        public static MyMatrix4x4 TRS(Vec3 pos, MyQuat q, Vec3 s)
+        public static MyMatrix4x4 TRS(Vec3 pos, MyQuat rotation, Vec3 scale)
         {
             MyMatrix4x4 matrix = identity;
 
@@ -498,13 +506,13 @@ namespace Matrix
             matrix[2, 3] = pos.z;
 
             // Establecer la rotacion
-            MyMatrix4x4 rotationMatrix = QuaternionToMatrix(q);
+            MyMatrix4x4 rotationMatrix = QuaternionToMatrix(rotation);
             matrix *= rotationMatrix;
 
             // Establecer la escala
-            matrix[0, 0] *= s.x;
-            matrix[1, 1] *= s.y;
-            matrix[2, 2] *= s.z;
+            matrix[0, 0] *= scale.x;
+            matrix[1, 1] *= scale.y;
+            matrix[2, 2] *= scale.z;
 
             return matrix;
         }
@@ -513,8 +521,8 @@ namespace Matrix
         /// <summary>
         /// Obtiene la columna especificada de la matriz de transformacion.
         /// </summary>
-        /// <param name="index">El indice de la columna (0-3).</param>
-        /// <returns>El vector columna correspondiente.</returns>
+        /// <param name="index"> El indice de la columna (0-3) </param>
+        /// <returns> El vector columna correspondiente </returns>
         public Vector4 GetColumn(int index)
         {
             // Crea un vector columna a partir de los elementos de la matriz en la columna especificada
@@ -535,8 +543,8 @@ namespace Matrix
         /// <summary>
         /// Obtiene la fila especificada de la matriz de transformacion.
         /// </summary>
-        /// <param name="index">El indice de la fila (0-3).</param>
-        /// <returns>El vector fila correspondiente.</returns>
+        /// <param name="index"> El indice de la fila (0-3) </param>
+        /// <returns> El vector fila correspondiente </returns>
         public Vector4 GetRow(int index)
         {
             // Crea un vector fila a partir de los elementos de la matriz en la fila especificada
@@ -612,16 +620,18 @@ namespace Matrix
         /// <summary>
         /// Establece la columna en el indice especificado con el vector de columna proporcionado.
         /// </summary>
-        /// <param name="index">El indice de la columna a establecer.</param>
-        /// <param name="column">El vector de columna a asignar.</param>
+        /// <param name="index"> El indice de la columna a establecer </param>
+        /// <param name="column"> El vector de columna a asignar </param>
         public void SetColumn(int index, Vector4 column)
         {
-            // Asegura que el indice de la columna esté dentro de los limites del arreglo bidimensional
-            if (index < 0 || index >= 4)
+            // Asegura que el indice de la columna este dentro de los limites del arreglo bidimensional
+            if (index < 0 || index >= MaxColumns)
+            {
                 throw new ArgumentOutOfRangeException("index", "El indice de la columna esta fuera de los limites.");
+            }
 
             // Actualiza la columna en el indice especificado con el vector de columna proporcionado
-            for (int row = 0; row < 4; row++)
+            for (int row = 0; row < MaxColumns; row++)
             {
                 matrix[row, index] = column[row];
             }
@@ -630,21 +640,23 @@ namespace Matrix
         /// <summary>
         /// Establece la fila en el indice especificado con el vector de fila proporcionado.
         /// </summary>
-        /// <param name="index">El indice de la fila a establecer.</param>
-        /// <param name="row">El vector de fila a asignar.</param>
+        /// <param name="index"> El indice de la fila a establecer </param>
+        /// <param name="row"> El vector de fila a asignar </param>
         public void SetRow(int index, Vector4 row)
         {
-            // Asegura que el indice de la fila esté dentro de los limites del arreglo bidimensional
-            if (index < 0 || index >= 4)
+            // Asegura que el indice de la fila este dentro de los limites del arreglo bidimensional
+            if (index < 0 || index >= MaxRows)
+            {
                 throw new ArgumentOutOfRangeException("index", "El indice de la fila esta fuera de los limites.");
+            }
 
             // Actualiza la fila en el indice especificado con el vector de fila proporcionado
-            for (int col = 0; col < 4; col++)
+            for (int col = 0; col < MaxRows; col++)
             {
                 matrix[index, col] = row[col];
             }
         }
-        
+
         /// <summary>
         /// Establece la matriz de transformacion utilizando una combinacion de posicion, rotacion y escala.
         /// </summary>
@@ -674,7 +686,8 @@ namespace Matrix
         /// </remarks>
         public bool ValidTRS()
         {
-            // Check if the matrix is orthogonally normalized
+            // Verificar si la matriz esta normalizada ortogonalmente
+            // Si alguna de las magnitudes no es aproximadamente igual a 1, se considera que la matriz no esta normalizada ortogonalmente.
             if (!Mathf.Approximately(this.GetColumn(0).magnitude, 1f) ||
                 !Mathf.Approximately(this.GetColumn(1).magnitude, 1f) ||
                 !Mathf.Approximately(this.GetColumn(2).magnitude, 1f))
@@ -682,7 +695,8 @@ namespace Matrix
                 return false;
             }
 
-            // Check if the matrix is uniformly scaled
+            // Verificar si la matriz tiene una escala uniforme
+            // Si alguno de los componentes de la diagonal principal difiere de los otros, se considera que la matriz no tiene una escala uniforme.
             Vec3 scale = new Vec3(this[0, 0], this[1, 1], this[2, 2]);
             if (!Mathf.Approximately(scale.x, scale.y) ||
                 !Mathf.Approximately(scale.x, scale.z))
@@ -690,11 +704,11 @@ namespace Matrix
                 return false;
             }
 
-            // Check if the matrix is rigid-body transformed
-            MyMatrix4x4 transposed = transpose;
-            MyMatrix4x4 inverse = transposed.inverse;
-            MyMatrix4x4 identity = transposed * inverse;
-            if (!identity.isIdentity)
+            // Verificar si la matriz tiene una transformación rígida
+            MyMatrix4x4 identityMatrix = transpose * transpose.inverse;
+
+            // Si el resultado no es una matriz de identidad, significa que la matriz tiene algun tipo de deformaciozn o no representa una transformacion rigida.
+            if (!identityMatrix.isIdentity)
             {
                 return false;
             }
@@ -762,7 +776,7 @@ namespace Matrix
 
             return result;
         }
-        
+
         /// <summary>
         /// Compara si dos matrices de 4x4 son iguales.
         /// </summary>
@@ -875,7 +889,5 @@ namespace Matrix
                 }
             }
         }
-
-
     }
 }
