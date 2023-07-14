@@ -10,10 +10,11 @@ namespace Quat
         #region Variables
 
         // TODO agregar data de cuaternion
-        private float X { get; set; }
-        private float Y { get; set; }
-        private float Z { get; set; }
-        private float W { get; set; }
+        //GIMBAL LOCK
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Z { get; set; }
+        public float W { get; set; }
 
         #endregion
 
@@ -78,13 +79,14 @@ namespace Quat
         /// <returns> Transformacion a Euler </returns>
         public Vec3 eulerAngles()
         {
+            // Proyectas el vector, usando la pryecsion con la profundidad crea un prisma
             // Calculate the yaw (Z rotation).
+            // Arco tangente de 
             float yaw = Mathf.Atan2(2 * X * Y + 2 * W * Z, 1 - 2 * X * X - 2 * Y * Y);
             // Calculate the pitch (Y rotation).
             float pitch = Mathf.Asin(2 * X * Z - 2 * W * Y);
             // Calculate the roll (X rotation).
             float roll = Mathf.Atan2(2 * Y * Z + 2 * W * X, 1 - 2 * Y * Y - 2 * Z * Z);
-            // Return the Euler angles.
             return new Vec3(yaw, pitch, roll);
         }
 
@@ -386,10 +388,9 @@ namespace Quat
             // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
             return result.normalized();
         }
-
-        // TODO nombre de linea slerp
+        
         /// <summary>
-        /// Realiza una interpolacion esferica entre dos cuaterniones con un factor de interpolacion restringido.
+        /// Realiza una interpolacion esferica (Hiperbola) entre dos cuaterniones con un factor de interpolacion restringido.
         /// </summary>
         /// <param name="a"> Cuaternion inicial </param>
         /// <param name="b"> Cuaternion final </param>
