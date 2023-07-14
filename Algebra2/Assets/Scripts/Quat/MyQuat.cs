@@ -9,8 +9,10 @@ namespace Quat
     {
         #region Variables
 
-        // TODO agregar data de cuaternion
-        //GIMBAL LOCK
+        // Un cuaternion es una extension de los numeros complejos que representa rotaciones en el espacio tridimensional.
+        // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar  el bloqueo del gimbal.
+        // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo, al representar las rotaciones en un espacio de mayor dimensionalidad (4D).
+        // Tambien se usan para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -388,7 +390,7 @@ namespace Quat
             // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
             return result.normalized();
         }
-        
+
         /// <summary>
         /// Realiza una interpolacion esferica (Hiperbola) entre dos cuaterniones con un factor de interpolacion restringido.
         /// </summary>
@@ -565,7 +567,9 @@ namespace Quat
             return new Vec3(resultX, resultY, resultZ);
         }
 
-        //TODO agregar mas comentarios i*j = kj
+        // Multiplicacion matricial no conmutativa. 
+        // La multiplicacion de cuaterniones se utiliza para representar rotaciones en el espacio tridimensional.
+        // La combinacion de dos rotaciones mediante la multiplicación de cuaterniones es equivalente a aplicar ambas rotaciones en secuencia.
         /// <summary>
         /// Realiza la multiplicacion de dos cuaterniones.
         /// </summary>

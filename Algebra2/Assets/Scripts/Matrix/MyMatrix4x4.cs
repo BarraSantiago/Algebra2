@@ -79,6 +79,12 @@ namespace Matrix
 
         public static MyMatrix4x4 identity = new MyMatrix4x4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 
+        /// <summary>
+        /// Obtiene o reescribe el valor de un elemento en la matriz usando un indice.
+        /// </summary>
+        /// <param name="index"> El indice del elemento </param>
+        /// <returns> El valor del elemento en la posicion especificada </returns>
+        /// <exception cref="IndexOutOfRangeException"> Se produce si el indice esta fuera del rango esperado </exception>
         public float this[int index]
         {
             get
@@ -101,6 +107,12 @@ namespace Matrix
             }
         }
 
+        /// <summary>
+        /// Obtiene o reescribe el valor de un elemento en la matriz usando un indice de fila y otro de columna.
+        /// </summary>
+        /// <param name="row"> El indice de la fila </param>
+        /// <param name="column"> El indice de la columna </param>
+        /// <exception cref="IndexOutOfRangeException"> Se produce si el indice esta fuera del rango esperado </exception>
         public float this[int row, int column]
         {
             get
@@ -122,14 +134,14 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Obtiene el cuaternion de rotación de la matriz.
+        /// Obtiene el cuaternion de rotacion de la matriz.
         /// </summary>
-        /// <returns>El cuaternion de rotación.</returns>
+        /// <returns> El cuaternion de rotacio </returns>
         public MyQuat rotation
         {
             get
             {
-                // Extraer la escala, rotación y traslación de la matriz
+                // Extraer la escala, rotacion y traslacion de la matriz
                 Vec3 scale = lossyScale;
                 MyMatrix4x4 rotationMatrix = new MyMatrix4x4(this[0, 0] / scale.x, this[0, 1] / scale.y,
                     this[0, 2] / scale.z, 0f,
@@ -137,7 +149,7 @@ namespace Matrix
                     this[2, 0] / scale.x, this[2, 1] / scale.y, this[2, 2] / scale.z, 0f,
                     0f, 0f, 0f, 1f);
 
-                // Obtener el cuaternion a partir de la matriz de rotación
+                // Obtener el cuaternion a partir de la matriz de rotacion
                 MyQuat quaternion = rotationMatrix.ToMyQuat();
 
                 return quaternion;
@@ -146,22 +158,13 @@ namespace Matrix
 
 
         /// <summary>
-        /// Obtiene la escala en el espacio mundial (escala real) del objeto.
+        /// Obtiene la escala en el espacio mundial (world / escala real) del objeto.
         /// </summary>
         public Vec3 lossyScale
         {
             get { return new Vec3(GetColumn(0).magnitude, GetColumn(1).magnitude, GetColumn(2).magnitude); }
         }
-
-        // TRS
-        // TRANSFORMACION ROTACION ESCALA
-        // MATRIZ QUE SE GENERA MULTIPLICA LAS MATRICES EN EL ORDEN ESPECIFICADO
-        // ORDEN DENTRO DE LAS MATRICES
-        // MULTIPLICACION DE TRS REPRESENTA LA ROTACION DE UN OBJETO PADRE SOBRE UN OBJETO HIJO
-        // LA MULTIPLICACION DE TRS A SOBRE TRS B (AxB) SE APLICA LA MODIFICACIONES DE B EN A
-
         
-
         public bool isIdentity
         {
             get
@@ -386,15 +389,15 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Crea una matriz de traslación basada en el vector de traslación proporcionado.
+        /// Crea una matriz de traslacion basada en el vector de traslacion proporcionado.
         /// </summary>
-        /// <param name="vector">Vector de traslación en los ejes x, y, z.</param>
-        /// <returns>La matriz de traslación resultante.</returns>
+        /// <param name="vector">Vector de traslacion en los ejes x, y, z.</param>
+        /// <returns>La matriz de traslacion resultante.</returns>
         public static MyMatrix4x4 Translate(Vec3 vector)
         {
             MyMatrix4x4 matrix = new MyMatrix4x4();
 
-            // Establecer los elementos de la matriz de traslación
+            // Establecer los elementos de la matriz de traslacion
             matrix[0, 3] = vector.x;
             matrix[1, 3] = vector.y;
             matrix[2, 3] = vector.z;
@@ -424,25 +427,32 @@ namespace Matrix
             return result;
         }
 
+        
+        // TRS
+        // TRANSFORMACION ROTACION ESCALA
+        // MATRIZ QUE SE GENERA MULTIPLICA LAS MATRICES EN EL ORDEN ESPECIFICADO
+        // MULTIPLICACION DE TRS REPRESENTA LA ROTACION DE UN OBJETO PADRE SOBRE UN OBJETO HIJO
+        // LA MULTIPLICACION DE TRS A SOBRE TRS B (AxB) SE APLICAN LAS MODIFICACIONES DE B EN A
+        
         /// <summary>
-        /// Crea una matriz de transformación compuesta por una traslación, rotación y escala.
+        /// Crea una matriz de transformacion compuesta por una traslacion, rotacion y escala.
         /// </summary>
-        /// <param name="pos">Vector de traslación.</param>
-        /// <param name="q">Cuaternión de rotación.</param>
-        /// <param name="s">Vector de escala.</param>
-        /// <returns>La matriz de transformación TRS resultante.</returns>
+        /// <param name="pos"> Vector de traslacion </param>
+        /// <param name="q"> Cuaternion de rotacion </param>
+        /// <param name="s"> Vector de escala </param>
+        /// <returns> La matriz de transformacion TRS resultante </returns>
         public static MyMatrix4x4 TRS(Vec3 pos, MyQuat q, Vec3 s)
         {
-            MyMatrix4x4 matrix = MyMatrix4x4.identity;
+            MyMatrix4x4 matrix = identity;
 
-            // Establecer la traslación
+            // Establecer la traslacion
             matrix[0, 3] = pos.x;
             matrix[1, 3] = pos.y;
             matrix[2, 3] = pos.z;
 
-            // Establecer la rotación
+            // Establecer la rotacion
             MyMatrix4x4 rotationMatrix = QuaternionToMatrix(q);
-            matrix = matrix * rotationMatrix;
+            matrix *= rotationMatrix;
 
             // Establecer la escala
             matrix[0, 0] *= s.x;
@@ -454,7 +464,7 @@ namespace Matrix
 
 
         /// <summary>
-        /// Obtiene la columna especificada de la matriz de transformación.
+        /// Obtiene la columna especificada de la matriz de transformacion.
         /// </summary>
         /// <param name="index">El índice de la columna (0-3).</param>
         /// <returns>El vector columna correspondiente.</returns>
@@ -465,18 +475,18 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Obtiene la posición de traslación de la matriz de transformación.
+        /// Obtiene la posición de traslacion de la matriz de transformacion.
         /// </summary>
         /// <returns>El vector de posición.</returns>
         public Vec3 GetPosition()
         {
-            // Obtiene la última columna de la matriz que representa la posición de traslación
+            // Obtiene la última columna de la matriz que representa la posición de traslacion
             Vector4 column = GetColumn(3);
             return new Vec3(column.x, column.y, column.z);
         }
 
         /// <summary>
-        /// Obtiene la fila especificada de la matriz de transformación.
+        /// Obtiene la fila especificada de la matriz de transformacion.
         /// </summary>
         /// <param name="index">El índice de la fila (0-3).</param>
         /// <returns>El vector fila correspondiente.</returns>
@@ -487,53 +497,53 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Multiplica un punto por la matriz de transformación, teniendo en cuenta la traslación.
+        /// Multiplica un punto por la matriz de transformacion, teniendo en cuenta la traslacion.
         /// </summary>
         /// <param name="point">El punto a multiplicar.</param>
         /// <returns>El resultado de la multiplicación.</returns>
         public Vec3 MultiplyPoint(Vec3 point)
         {
-            // Crea un vector extendido a partir del punto con un componente de 1 para tener en cuenta la traslación
+            // Crea un vector extendido a partir del punto con un componente de 1 para tener en cuenta la traslacion
             Vector4 extendedPoint = new Vector4(point.x, point.y, point.z, 1f);
 
-            // Multiplica el vector extendido por la matriz de transformación
+            // Multiplica el vector extendido por la matriz de transformacion
             Vector4 transformedPoint = this * extendedPoint;
 
-            // Retorna el resultado como un vector de posición sin el componente de traslación
+            // Retorna el resultado como un vector de posición sin el componente de traslacion
             return new Vec3(transformedPoint.x, transformedPoint.y, transformedPoint.z);
         }
 
         /// <summary>
-        /// Multiplica un punto por la matriz de transformación sin tener en cuenta la traslación.
+        /// Multiplica un punto por la matriz de transformacion sin tener en cuenta la traslacion.
         /// </summary>
         /// <param name="point">El punto a multiplicar.</param>
         /// <returns>El resultado de la multiplicación.</returns>
         public Vec3 MultiplyPoint3x4(Vec3 point)
         {
-            // Crea un vector extendido a partir del punto con un componente de 1 para tener en cuenta la traslación
+            // Crea un vector extendido a partir del punto con un componente de 1 para tener en cuenta la traslacion
             Vector4 extendedPoint = new Vector4(point.x, point.y, point.z, 1f);
 
-            // Multiplica el vector extendido por la matriz de transformación sin tener en cuenta la última columna
+            // Multiplica el vector extendido por la matriz de transformacion sin tener en cuenta la última columna
             Vector4 transformedPoint = this * extendedPoint;
 
-            // Retorna el resultado como un vector de posición sin el componente de traslación
+            // Retorna el resultado como un vector de posición sin el componente de traslacion
             return new Vec3(transformedPoint.x, transformedPoint.y, transformedPoint.z);
         }
 
         /// <summary>
-        /// Multiplica un vector por la matriz de transformación sin tener en cuenta la traslación ni el escalamiento.
+        /// Multiplica un vector por la matriz de transformacion sin tener en cuenta la traslacion ni el escalamiento.
         /// </summary>
         /// <param name="vector">El vector a multiplicar.</param>
         /// <returns>El resultado de la multiplicación.</returns>
         public Vec3 MultiplyVector(Vec3 vector)
         {
-            // Crea un vector extendido a partir del vector con un componente de 0 para no tener en cuenta la traslación
+            // Crea un vector extendido a partir del vector con un componente de 0 para no tener en cuenta la traslacion
             Vector4 extendedVector = new Vector4(vector.x, vector.y, vector.z, 0f);
 
-            // Multiplica el vector extendido por la matriz de transformación sin tener en cuenta la última columna ni la última fila
+            // Multiplica el vector extendido por la matriz de transformacion sin tener en cuenta la última columna ni la última fila
             Vector4 transformedVector = this * extendedVector;
 
-            // Retorna el resultado como un vector de dirección sin el componente de traslación
+            // Retorna el resultado como un vector de dirección sin el componente de traslacion
             return new Vec3(transformedVector.x, transformedVector.y, transformedVector.z);
         }
 
@@ -574,19 +584,19 @@ namespace Matrix
         }
         
         /// <summary>
-        /// Establece la matriz de transformación utilizando una combinación de posición, rotación y escala.
+        /// Establece la matriz de transformacion utilizando una combinación de posición, rotacion y escala.
         /// </summary>
-        /// <param name="pos">La posición de la transformación.</param>
-        /// <param name="q">La rotación de la transformación en forma de cuaternión.</param>
-        /// <param name="s">La escala de la transformación.</param>
+        /// <param name="pos">La posición de la transformacion.</param>
+        /// <param name="q">La rotacion de la transformacion en forma de Cuaternion.</param>
+        /// <param name="s">La escala de la transformacion.</param>
         public void SetTRS(Vec3 pos, MyQuat q, Vec3 s)
         {
-            // Crea la matriz de transformación utilizando la posición, rotación y escala proporcionadas
+            // Crea la matriz de transformacion utilizando la posición, rotacion y escala proporcionadas
             MyMatrix4x4 translationMatrix = Translate(pos);
             MyMatrix4x4 rotationMatrix = QuaternionToMatrix(q);
             MyMatrix4x4 scaleMatrix = Scale(s);
 
-            // Realiza la multiplicación en el orden: escala * rotación * traslación
+            // Realiza la multiplicación en el orden: escala * rotacion * traslacion
             SetMatrix(scaleMatrix * rotationMatrix * translationMatrix);
         }
 
@@ -707,7 +717,7 @@ namespace Matrix
         {
             MyMatrix4x4 matrix = identity;
 
-            // Elementos de la matriz de rotación
+            // Elementos de la matriz de rotacion
             float xx = q.X * q.X;
             float xy = q.X * q.Y;
             float xz = q.X * q.Z;
@@ -720,7 +730,7 @@ namespace Matrix
             float zz = q.Z * q.Z;
             float zw = q.Z * q.W;
 
-            // Llena la matriz de rotación con los elementos calculados
+            // Llena la matriz de rotacion con los elementos calculados
             matrix[0, 0] = 1 - 2 * (yy + zz);
             matrix[0, 1] = 2 * (xy - zw);
             matrix[0, 2] = 2 * (xz + yw);
@@ -737,23 +747,23 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Convierte la matriz de transformación en un cuaternión que representa la rotación.
+        /// Convierte la matriz de transformacion en un Cuaternion que representa la rotacion.
         /// </summary>
-        /// <returns>El cuaternión que representa la rotación.</returns>
+        /// <returns>El Cuaternion que representa la rotacion.</returns>
         public MyQuat ToMyQuat()
         {
-            // Extrae la escala, la rotación y la posición de la matriz de transformación
+            // Extrae la escala, la rotacion y la posición de la matriz de transformacion
             Vec3 scale = lossyScale;
             MyQuat rotationQuat = rotation;
 
             // Normaliza la escala
             scale.Normalize();
 
-            // Crea una matriz de transformación auxiliar para almacenar solo la rotación y la escala
+            // Crea una matriz de transformacion auxiliar para almacenar solo la rotacion y la escala
             MyMatrix4x4 transformMatrix = new MyMatrix4x4();
             transformMatrix.SetTRS(Vec3.Zero, rotationQuat, scale);
 
-            // Convierte la matriz de transformación auxiliar en un cuaternión
+            // Convierte la matriz de transformacion auxiliar en un Cuaternion
             MyQuat quaternion = transformMatrix.ToMyQuat();
 
             return quaternion;
