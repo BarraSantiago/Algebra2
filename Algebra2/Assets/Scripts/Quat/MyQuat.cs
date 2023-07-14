@@ -207,6 +207,7 @@ namespace Quat
             float sinRoll = Mathf.Sin(roll);
 
             MyQuat newQuat = new MyQuat();
+            
             // Construir el cuaternion utilizando los valores calculados
             // Calculos necesarios para convertir de Euler a cuaternion
             // TODO agregar mas comentarios
