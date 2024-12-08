@@ -8,7 +8,7 @@ namespace Plane
 {
     public class CollisionDetection : MonoBehaviour
     {
-        [Header("Objects Mesh")]
+        [Header("Objects Mesh")] 
         [SerializeField] private MeshFilter object1Mesh;
         [SerializeField] private MeshFilter object2Mesh;
 
@@ -38,7 +38,7 @@ namespace Plane
         {
             planes = new List<MyPlane>();
             trianglesObj = new List<Vec3>();
-    
+
             Vector3[] vertices = objectMesh.mesh.vertices;
             Vec3[] verticesVec3 = new Vec3[vertices.Length];
 
@@ -79,7 +79,7 @@ namespace Plane
                             if (LinePlaneIntersection(theMesh[x, y, z], planes[i], out Vec3 intersectionPoint))
                             {
                                 if (intersectionPoint == Vec3.Back) continue; //no intersection case
-                                
+
                                 //checks if point is inside triangle
                                 if (IsPointInsideTriangle(intersectionPoint, trianglesObj[i * 3],
                                         trianglesObj[i * 3 + 1], trianglesObj[i * 3 + 2]))
@@ -89,6 +89,7 @@ namespace Plane
                                 }
                             }
                         }
+
                         //if odd ammount of collisions, adds point to points inside the object
                         if (collisions % 2 == 1) objectPoints.Add(theMesh[x, y, z]);
                     }
@@ -100,7 +101,7 @@ namespace Plane
         {
             Vec3 planeNormal = plane.Normal;
             Vec3 planePoint = planeNormal * -plane.Distance;
-            
+
             Vec3 lineEnd = Vec3.Down; //uses this vec3 as reference because its outside of the mesh
 
             //calculates distance between points and start
@@ -140,7 +141,7 @@ namespace Plane
             float dotp2 = Vec3.Dot(vp, v1V3);
 
             // Compute barycentric coordinates
-            
+
             float invDenom = 1 / (dot11 * dot22 - dot12 * dot12);
             float u = (dot22 * dotp1 - dot12 * dotp2) * invDenom;
             float v = (dot11 * dotp2 - dot12 * dotp1) * invDenom;

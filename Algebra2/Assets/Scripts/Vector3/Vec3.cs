@@ -21,13 +21,13 @@ namespace CustomMath
             get
             {
                 float mag = magnitude;
-                
-                
+
+
                 if (mag > 0)
                 {
                     return new Vec3(x / mag, y / mag, z / mag);
                 }
-                
+
                 return new Vec3(0, 0, 0);
             }
         }
@@ -183,9 +183,7 @@ namespace CustomMath
         {
             return new Vec3(v3.x / scalar, v3.y / scalar, v3.z / scalar);
         }
-        
-        //TODO Corregir este Vector3(Vec3 v3)
-        
+
         public static implicit operator Vector3(Vec3 v3)
         {
             return new Vector3(v3.x, v3.y, v3.z);
@@ -195,14 +193,14 @@ namespace CustomMath
         {
             return new Vector2(v2.x, v2.y);
         }
-        
+
         #endregion
 
         #region Functions
 
         public override string ToString()
         {
-            return "X = " + x.ToString() + "   Y = " + y.ToString() + "   Z = " + z.ToString();
+            return "X = " + x + "   Y = " + y + "   Z = " + z;
         }
 
         public static float Angle(Vec3 from, Vec3 to)
@@ -271,17 +269,44 @@ namespace CustomMath
             return new Vec3(Mathf.Min(a.x, b.x), Mathf.Min(a.y, b.y), Mathf.Min(a.z, b.z));
         }
 
+        /// <summary>
+        /// Calculates the squared magnitude (length) of a vector.
+        /// </summary>
+        /// <param name="vector"> The vector whose squared magnitude is to be calculated.</param>
+        /// <returns> The squared magnitude of the vector.</returns>
+        /// <remarks>
+        /// The squared magnitude is useful in performance-critical code where the actual magnitude is not needed,
+        /// as it avoids the computational cost of a square root operation.
+        /// </remarks>
         public static float SqrMagnitude(Vec3 vector)
         {
             return vector.x * vector.x + vector.y * vector.y + vector.z * vector.z;
         }
 
+        /// <summary>
+        /// Projects a vector onto another vector (normal).
+        /// </summary>
+        /// <param name="vector"> The vector to be projected.</param>
+        /// <param name="onNormal"> The vector onto which the first vector is projected.</param>
+        /// <returns> The projection of the vector onto the normal.</returns>
+        /// <remarks>
+        /// This is useful in physics and graphics to find the component of a vector in the direction of another vector.
+        /// </remarks>
         public static Vec3 Project(Vec3 vector, Vec3 onNormal)
         {
             float dot = Dot(vector, onNormal);
             return onNormal * dot / onNormal.sqrMagnitude;
         }
 
+        /// <summary>
+        /// Reflects a vector off a surface defined by a normal.
+        /// </summary>
+        /// <param name="inDirection">The direction vector to be reflected.</param>
+        /// <param name="inNormal">The normal vector of the surface.</param>
+        /// <returns> The reflected vector.</returns>
+        /// <remarks>
+        /// This is commonly used in physics simulations and graphics to calculate the direction of a reflected ray or object.
+        /// </remarks>
         public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal)
         {
             return inDirection - 2f * Dot(inDirection, inNormal) * inNormal;
@@ -318,17 +343,19 @@ namespace CustomMath
 
         public override bool Equals(object other)
         {
-            if (!(other is Vec3))
+            if (other is not Vec3 vec3)
             {
                 return false;
             }
-            
-            return Equals((Vec3)other);
+
+            return Equals(vec3);
         }
 
         public bool Equals(Vec3 other)
         {
-            return x == other.x && y == other.y && z == other.z;
+            return Mathf.Approximately(x, other.x) &&
+                   Mathf.Approximately(y, other.y) &&
+                   Mathf.Approximately(z, other.z);
         }
 
         public override int GetHashCode()

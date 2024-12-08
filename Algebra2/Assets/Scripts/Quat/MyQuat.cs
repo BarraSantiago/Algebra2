@@ -11,7 +11,7 @@ namespace Quat
 
         // Un cuaternion es una extension de los numeros complejos que representa rotaciones en el espacio tridimensional.
         // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar  el bloqueo del gimbal.
-        // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo, al representar las rotaciones en un espacio de mayor dimensionalidad (4D).
+        // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo.
         // Tambien se usan para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
         public float X { get; set; }
         public float Y { get; set; }
@@ -74,7 +74,9 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
-        //TODO agregar comentarios
+        // TODO agregar comentarios
+        // son 6 triangulos
+
         /// <summary>
         /// Calcula y devuelve los angulos de Euler de un cuaternion en forma de un Vec3
         /// </summary>
@@ -101,7 +103,7 @@ namespace Quat
 
             if (magnitude > 0)
             {
-                // Divide cada componente por la magnitud para normalizar el cuaternión
+                // Divide cada componente por la magnitud para normalizar el cuaternion
                 return new MyQuat(X / magnitude, Y / magnitude, Z / magnitude, W / magnitude);
             }
 
@@ -185,19 +187,22 @@ namespace Quat
 
         /// <summary>
         /// Toma 3 floats que representan un Vec3 de Euler en grados y devuelve un cuaternion que representa la misma rotacion.
+        /// Las rotaciones de Euler se especifican usualmente en el orden (pitch, yaw, roll) o (x, y, z) dependiendo del contexto.
         /// </summary>
-        /// <param name="x"> Componente X del vector </param>
-        /// <param name="y"> Componente Y del vector </param>
-        /// <param name="z"> Componente Z del vector </param>
-        /// <returns> Retorna el vec3 convertido a cuaternion </returns>
+        /// <param name="x"> Componente X del vector (pitch)</param>
+        /// <param name="y"> Componente Y del vector (yaw)</param>
+        /// <param name="z"> Componente Z del vector (roll)</param>
+        /// <returns> Retorna un cuaternion que representa la rotacion especificada por los angulos Euler</returns>
         public static MyQuat Euler(float x, float y, float z)
         {
-            // Convertir los angulos de Euler de grados a radianes
-            float yaw = y * Mathf.Deg2Rad * 0.5f; // Yaw (rotacion vertical)
-            float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch (rotacion horizontal)
-            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll (rotacion de profundidad)
+            // Primero se convierten los angulos de Euler (en grados) a radianes.
+            // Los cuaterniones se basan en rotaciones continuas, y las funciones trigonometricas en la mayoría de motores esperan radianes.
+            float yaw = y * Mathf.Deg2Rad * 0.5f; // Yaw: rotacion en torno al eje vertical (ej: mirando hacia la izquierda/derecha)
+            float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch: rotacion en torno al eje lateral (ej: mirando hacia arriba/abajo)
+            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll: rotacion en torno al eje longitudinal (ej: inclinación lateral)
 
-            // Calcular los valores trigonometricos de los angulos de Euler
+            // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la farmula para pasar de Euler a cuaternion
+            // utiliza angulos medios. La representacion de cuaterniones se basa en la mitad del angulo de rotacion en cada eje.
             float cosYaw = Mathf.Cos(yaw);
             float sinYaw = Mathf.Sin(yaw);
             float cosPitch = Mathf.Cos(pitch);
@@ -205,11 +210,22 @@ namespace Quat
             float cosRoll = Mathf.Cos(roll);
             float sinRoll = Mathf.Sin(roll);
 
+            // Crear la instancia del cuaternion resultante
             MyQuat newQuat = new MyQuat();
-            
-            // Construir el cuaternion utilizando los valores calculados
-            // Calculos necesarios para convertir de Euler a cuaternion
-            // TODO agregar mas comentarios
+
+            // El cuaternion se compone de cuatro componentes: W, X, Y, Z.
+            // Para convertir de Euler a cuaternion se utiliza la siguiente formula:
+            //
+            // W = cos(yaw)*cos(pitch)*cos(roll) + sin(yaw)*sin(pitch)*sin(roll)
+            // X = cos(yaw)*cos(pitch)*sin(roll) - sin(yaw)*sin(pitch)*cos(roll)
+            // Y = sin(yaw)*cos(pitch)*sin(roll) + cos(yaw)*sin(pitch)*cos(roll)
+            // Z = sin(yaw)*cos(pitch)*cos(roll) - cos(yaw)*sin(pitch)*sin(roll)
+            //
+            // Estas formulas provienen de la composicion de rotaciones individuales y la definicion del cuaternion a partir de Euler.
+            // Basicamente, se toma cada rotacion parcial, se la convierte en un cuaternion y se multiplican entre si.
+            // El resultado final es un cuaternion que representa la rotacion total sin los problemas de gimbal lock de las Euler.
+            //
+            // Lo que estas líneas hacen es sintetizar esa combinación trigonometrica en un solo paso.
             newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
             newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
             newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
@@ -217,6 +233,7 @@ namespace Quat
 
             return newQuat;
         }
+
 
         /// <summary>
         /// Crea un cuaternion que representa la rotacion necesaria para ir desde una direccion "fromDirection" a la otra "toDirection".
@@ -239,7 +256,7 @@ namespace Quat
             // Calcular el angulo entre los vectores de direccion
             float angle = Mathf.Acos(dotProduct);
 
-            // Crear el cuaternión a partir del angulo y el eje de rotacion
+            // Crear el cuaternion a partir del angulo y el eje de rotacion
             MyQuat rotationQuat = AxisAngle(rotationAxis, angle);
 
             return rotationQuat;
@@ -303,7 +320,7 @@ namespace Quat
         }
 
         /// <summary>
-        /// Transforma un vector director en una rotación que tenga su eje z alineado con “forward”.
+        /// Transforma un vector director en una rotacion que tenga su eje z alineado con “forward”.
         /// </summary>
         /// <param name="forward"> Direccion hacia la cual se desea mirar </param>
         /// <returns> Cuaternion de rotacion para mirar hacia la direccion especificada </returns>
@@ -538,12 +555,12 @@ namespace Quat
             }
             else
             {
-                // Calcula los componentes del eje de rotación dividiendo los componentes X, Y y Z del cuaternión por el factor de escala
+                // Calcula los componentes del eje de rotacion dividiendo los componentes X, Y y Z del cuaternion por el factor de escala
                 axis = new Vec3(X / scale, Y / scale, Z / scale);
             }
         }
 
-
+        // TODO AGREGAR COMENTARIOS
         /// <summary>
         /// Realiza la multiplicacion de un cuaternion por un vector.
         /// </summary>
@@ -552,7 +569,7 @@ namespace Quat
         /// <returns> El resultado de la multiplicacion del cuaternion por el vector </returns>
         public static Vec3 operator *(MyQuat rotation, Vec3 point)
         {
-            // Realiza la multiplicación del cuaternión con el vector
+            // Realiza la multiplicación del cuaternion con el vector
             float num1 = rotation.Y * point.z - rotation.Z * point.y;
             float num2 = rotation.Z * point.x - rotation.X * point.z;
             float num3 = rotation.X * point.y - rotation.Y * point.x;
@@ -569,7 +586,7 @@ namespace Quat
 
         // Multiplicacion matricial no conmutativa. 
         // La multiplicacion de cuaterniones se utiliza para representar rotaciones en el espacio tridimensional.
-        // La combinacion de dos rotaciones mediante la multiplicación de cuaterniones es equivalente a aplicar ambas rotaciones en secuencia.
+        // La combinacion de dos rotaciones mediante la multiplicacion de cuaterniones es equivalente a aplicar ambas rotaciones en secuencia.
         /// <summary>
         /// Realiza la multiplicacion de dos cuaterniones.
         /// </summary>
