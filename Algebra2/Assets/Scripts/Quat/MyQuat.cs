@@ -10,7 +10,7 @@ namespace Quat
         #region Variables
 
         // Un cuaternion es una extension de los numeros complejos que representa rotaciones en el espacio tridimensional.
-        // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar  el bloqueo del gimbal.
+        // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar el bloqueo de cardan o gimbal.
         // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo.
         // Tambien se usan para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
         public float X { get; set; }
@@ -74,24 +74,41 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
-        // TODO agregar comentarios
-        // son 6 triangulos
+        // Matematicamente, cuando hablamos de cuaterniones y transformaciones, el espacio tridimensional se mapea a traves de estas 
+        // divisiones triangulares. Esto puede ser util al visualizar rotaciones o calcular proyecciones.
+
+        // Teoria: Un cuaternion es una extension matematica de numeros complejos que se utiliza para representar rotaciones 3D.
+        // Practicidad: En graficos 3D, los cuaterniones son muy utiles porque evitan problemas como el bloqueo de gimbal (gimbal lock).
 
         /// <summary>
-        /// Calcula y devuelve los angulos de Euler de un cuaternion en forma de un Vec3
+        /// Calcula y devuelve los angulos de Euler a partir de un cuaternion, retornandolos como un vector (Vec3).
+        /// Los angulos de Euler son una representacion alternativa de rotaciones en el espacio tridimensional, usando rotaciones
+        /// consecutivas alrededor de los ejes X, Y y Z.
         /// </summary>
-        /// <returns> Transformacion a Euler </returns>
+        /// <returns>Transformacion a angulos de Euler en un objeto Vec3</returns>
         public Vec3 eulerAngles()
         {
-            // Proyectas el vector, usando la pryecsion con la profundidad crea un prisma
-            // Calculate the yaw (Z rotation).
+            // Proyectamos el cuaternion sobre los ejes del espacio tridimensional. 
+            // Esto puede interpretarse como "descomponer" la orientacion en componentes angulares especificas para cada eje.
+            // La idea de proyeccion puede asociarse con la division espacial en triangulos, donde cada cara tiene su influencia en los calculos.
+
+            // Calcular la rotacion en Z (yaw), que corresponde al giro alrededor del eje Z.
+            // Matematicamente, se utiliza la funcion atan2 para manejar el angulo correctamente en todos los cuadrantes.
             float yaw = Mathf.Atan2(2 * X * Y + 2 * W * Z, 1 - 2 * X * X - 2 * Y * Y);
-            // Calculate the pitch (Y rotation).
+
+            // Calcular la rotacion en Y (pitch), que es el giro alrededor del eje Y.
+            // Para este calculo se utiliza la funcion arcsen (Asin), que toma en cuenta la componente perpendicular al plano XZ.
             float pitch = Mathf.Asin(2 * X * Z - 2 * W * Y);
-            // Calculate the roll (X rotation).
+
+            // Calcular la rotacion en X (roll), que corresponde al giro alrededor del eje X.
+            // Nuevamente, usamos atan2 para manejar correctamente el angulo en el espacio tridimensional.
             float roll = Mathf.Atan2(2 * Y * Z + 2 * W * X, 1 - 2 * Y * Y - 2 * Z * Z);
+
+            // Retornamos los angulos calculados como un vector. Este vector representa las rotaciones equivalentes en terminos
+            // de angulos de Euler, utiles para interpretaciones como animaciones, fisica 3D o transformaciones visuales.
             return new Vec3(yaw, pitch, roll);
         }
+
 
         /// <summary>
         /// Calcula y devuelve un nuevo cuaternion normalizado (magnitud/longitud = 1) o si la magnitud es 0 devuelve el cuaternion identidad.
@@ -189,17 +206,17 @@ namespace Quat
         /// Toma 3 floats que representan un Vec3 de Euler en grados y devuelve un cuaternion que representa la misma rotacion.
         /// Las rotaciones de Euler se especifican usualmente en el orden (pitch, yaw, roll) o (x, y, z) dependiendo del contexto.
         /// </summary>
-        /// <param name="x"> Componente X del vector (pitch)</param>
-        /// <param name="y"> Componente Y del vector (yaw)</param>
-        /// <param name="z"> Componente Z del vector (roll)</param>
+        /// <param name="x"> Componente X del vector (pitch) </param>
+        /// <param name="y"> Componente Y del vector (yaw) </param>
+        /// <param name="z"> Componente Z del vector (roll) </param>
         /// <returns> Retorna un cuaternion que representa la rotacion especificada por los angulos Euler</returns>
         public static MyQuat Euler(float x, float y, float z)
         {
             // Primero se convierten los angulos de Euler (en grados) a radianes.
-            // Los cuaterniones se basan en rotaciones continuas, y las funciones trigonometricas en la mayoría de motores esperan radianes.
+            // Los cuaterniones se basan en rotaciones continuas, y las funciones trigonometricas en la mayoria de motores esperan radianes.
             float yaw = y * Mathf.Deg2Rad * 0.5f; // Yaw: rotacion en torno al eje vertical (ej: mirando hacia la izquierda/derecha)
             float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch: rotacion en torno al eje lateral (ej: mirando hacia arriba/abajo)
-            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll: rotacion en torno al eje longitudinal (ej: inclinación lateral)
+            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll: rotacion en torno al eje longitudinal (ej: inclinacion lateral)
 
             // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la farmula para pasar de Euler a cuaternion
             // utiliza angulos medios. La representacion de cuaterniones se basa en la mitad del angulo de rotacion en cada eje.
@@ -214,18 +231,12 @@ namespace Quat
             MyQuat newQuat = new MyQuat();
 
             // El cuaternion se compone de cuatro componentes: W, X, Y, Z.
-            // Para convertir de Euler a cuaternion se utiliza la siguiente formula:
-            //
-            // W = cos(yaw)*cos(pitch)*cos(roll) + sin(yaw)*sin(pitch)*sin(roll)
-            // X = cos(yaw)*cos(pitch)*sin(roll) - sin(yaw)*sin(pitch)*cos(roll)
-            // Y = sin(yaw)*cos(pitch)*sin(roll) + cos(yaw)*sin(pitch)*cos(roll)
-            // Z = sin(yaw)*cos(pitch)*cos(roll) - cos(yaw)*sin(pitch)*sin(roll)
-            //
+
             // Estas formulas provienen de la composicion de rotaciones individuales y la definicion del cuaternion a partir de Euler.
             // Basicamente, se toma cada rotacion parcial, se la convierte en un cuaternion y se multiplican entre si.
             // El resultado final es un cuaternion que representa la rotacion total sin los problemas de gimbal lock de las Euler.
-            //
-            // Lo que estas líneas hacen es sintetizar esa combinación trigonometrica en un solo paso.
+            
+            // Lo que estas lineas hacen es sintetizar esa combinacion trigonometrica en un solo paso.
             newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
             newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
             newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
@@ -445,13 +456,13 @@ namespace Quat
             }
 
             // Define el umbral de diferencia angular para utilizar la interpolacion lineal en lugar de la interpolacion esferica
-            const float threshold = 0.99995f;
+            const float epsilon = 0.99995f;
 
             // Si los cuaterniones son casi colineales, utiliza la interpolacion lineal
             MyQuat result;
-            if (dotProduct > threshold)
+            if (dotProduct > epsilon)
             {
-                // Esto es mas eficiente que "return LerpUnclamped(a, b, t).normalized();". Debido a que en esta manera se
+                // Esto es mas eficiente que "return LerpUnclamped(a, b, t).normalized();" debido a que en esa manera se
                 // crean 2 cuanternione diferentes, uno en LerpUnclamped y otro en normalized.
                 result = LerpUnclamped(a, b, t);
                 result.Normalize();
@@ -560,29 +571,44 @@ namespace Quat
             }
         }
 
-        // TODO AGREGAR COMENTARIOS
+        
+        // La multiplicacion con un vector permite aplicar una rotacion en 3D sin sufrir los problemas de interpolacion
+        // o gimbal lock que ocurren con los ángulos de Euler.
+        
+        // Esto puede usarse para rotar un punto en el espacio 3D utilizando un cuaternion que representa
+        // una orientacion o transformacion rotacional.
+
         /// <summary>
-        /// Realiza la multiplicacion de un cuaternion por un vector.
+        /// Realiza la multiplicacion de un cuaternion por un vector, aplicando una rotacion al vector original.
         /// </summary>
-        /// <param name="rotation"> El cuaternion a multiplicar </param>
-        /// <param name="point"> El vector a multiplicar </param>
-        /// <returns> El resultado de la multiplicacion del cuaternion por el vector </returns>
+        /// <param name="rotation"> El cuaternion que representa la rotacion</param>
+        /// <param name="point"> El vector a rotar</param>
+        /// <returns> El resultado de la rotacion aplicada al vector</returns>
         public static Vec3 operator *(MyQuat rotation, Vec3 point)
         {
-            // Realiza la multiplicación del cuaternion con el vector
-            float num1 = rotation.Y * point.z - rotation.Z * point.y;
-            float num2 = rotation.Z * point.x - rotation.X * point.z;
-            float num3 = rotation.X * point.y - rotation.Y * point.x;
-            float num4 = rotation.X * point.x + rotation.Y * point.y + rotation.Z * point.z;
+            // Paso 1: Calcular los productos cruzados parciales entre las componentes del cuaternion y el vector.
+            // Estas operaciones corresponden a la aplicacion de las reglas de multiplicacion de cuaterniones,
+            // adaptadas para trabajar con un vector (asumiendo W = 0 para el vector extendido).
+            float num1 = rotation.Y * point.z - rotation.Z * point.y; // Producto cruzado parcial en X
+            float num2 = rotation.Z * point.x - rotation.X * point.z; // Producto cruzado parcial en Y
+            float num3 = rotation.X * point.y - rotation.Y * point.x; // Producto cruzado parcial en Z
 
-            // Calcula el vector resultante
+            // Paso 2: Calcular el producto escalar entre el vector y el cuaternion.
+            // Este termino asegura que la rotacion sea correctamente aplicada considerando la "magnitud" del cuaternion.
+            float num4 = rotation.X * point.x + rotation.Y * point.y + rotation.Z * point.z; // Producto escalar
+
+            // Paso 3: Calcular los componentes del vector resultante tras la rotacion.
+            // Aqui aplicamos las reglas completas de multiplicacion de cuaterniones, considerando la orientacion
+            // (almacenada en W del cuaternion) y las interacciones cruzadas.
             float resultX = (num4 * rotation.X + num1 * rotation.W) + (num3 * rotation.Z - num2 * rotation.Y);
             float resultY = (num4 * rotation.Y + num2 * rotation.W) + (num1 * rotation.X - num3 * rotation.Z);
             float resultZ = (num4 * rotation.Z + num3 * rotation.W) + (num2 * rotation.Y - num1 * rotation.X);
 
-            // Crea y devuelve un nuevo vector con los componentes resultantes
+            // Paso 4: Crear y devolver un nuevo vector que contiene las coordenadas rotadas.
+            // Este vector representa la posicion del punto original tras ser rotado por el cuaternion.
             return new Vec3(resultX, resultY, resultZ);
         }
+
 
         // Multiplicacion matricial no conmutativa. 
         // La multiplicacion de cuaterniones se utiliza para representar rotaciones en el espacio tridimensional.
@@ -595,11 +621,13 @@ namespace Quat
         /// <returns> El resultado de la multiplicacion de los dos cuaterniones </returns>
         public static MyQuat operator *(MyQuat lhs, MyQuat rhs)
         {
-            MyQuat quat = new MyQuat();
-            quat.W = (lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z);
-            quat.X = (lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y);
-            quat.Y = (lhs.Y * rhs.W + lhs.W * rhs.Y + lhs.Z * rhs.X - lhs.X * rhs.Z);
-            quat.Z = (lhs.Z * rhs.W + lhs.W * rhs.Z - lhs.Y * rhs.X + lhs.X * rhs.Y);
+            MyQuat quat = new MyQuat
+            {
+                W = (lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z),
+                X = (lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y),
+                Y = (lhs.Y * rhs.W + lhs.W * rhs.Y + lhs.Z * rhs.X - lhs.X * rhs.Z),
+                Z = (lhs.Z * rhs.W + lhs.W * rhs.Z - lhs.Y * rhs.X + lhs.X * rhs.Y)
+            };
 
             return quat;
         }
