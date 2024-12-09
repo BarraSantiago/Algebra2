@@ -9,10 +9,12 @@ namespace Quat
     {
         #region Variables
 
-        // Un cuaternion es una extension de los numeros complejos que representa rotaciones en el espacio tridimensional.
+        
+        // Un cuaternion es una extension matematica de numeros complejos que se utiliza para representar rotaciones 3D.
+        // En graficos 3D, los cuaterniones son muy utiles porque evitan problemas como el bloqueo de gimbal (gimbal lock).
         // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar el bloqueo de cardan o gimbal.
         // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo.
-        // Tambien se usan para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
+        // Tambien se usa para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -74,18 +76,16 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
-        // Matematicamente, cuando hablamos de cuaterniones y transformaciones, el espacio tridimensional se mapea a traves de estas 
-        // divisiones triangulares. Esto puede ser util al visualizar rotaciones o calcular proyecciones.
+        // Matematicamente, cuando hablamos de cuaterniones y transformaciones, el espacio tridimensional se mapea a
+        // traves de estas divisiones triangulares. Esto puede ser util al visualizar rotaciones o calcular proyecciones.
 
-        // Teoria: Un cuaternion es una extension matematica de numeros complejos que se utiliza para representar rotaciones 3D.
-        // Practicidad: En graficos 3D, los cuaterniones son muy utiles porque evitan problemas como el bloqueo de gimbal (gimbal lock).
 
         /// <summary>
         /// Calcula y devuelve los angulos de Euler a partir de un cuaternion, retornandolos como un vector (Vec3).
-        /// Los angulos de Euler son una representacion alternativa de rotaciones en el espacio tridimensional, usando rotaciones
-        /// consecutivas alrededor de los ejes X, Y y Z.
+        /// Los angulos de Euler son una representacion alternativa de rotaciones en el espacio tridimensional, usando
+        /// rotaciones consecutivas alrededor de los ejes X, Y y Z.
         /// </summary>
-        /// <returns>Transformacion a angulos de Euler en un objeto Vec3</returns>
+        /// <returns> Transformacion a angulos de Euler en un objeto Vec3</returns>
         public Vec3 eulerAngles()
         {
             // Proyectamos el cuaternion sobre los ejes del espacio tridimensional. 
@@ -214,9 +214,9 @@ namespace Quat
         {
             // Primero se convierten los angulos de Euler (en grados) a radianes.
             // Los cuaterniones se basan en rotaciones continuas, y las funciones trigonometricas en la mayoria de motores esperan radianes.
-            float yaw = y * Mathf.Deg2Rad * 0.5f; // Yaw: rotacion en torno al eje vertical (ej: mirando hacia la izquierda/derecha)
+            float yaw = y * Mathf.Deg2Rad * 0.5f;   // Yaw: rotacion en torno al eje vertical (ej: mirando hacia la izquierda/derecha)
             float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch: rotacion en torno al eje lateral (ej: mirando hacia arriba/abajo)
-            float roll = z * Mathf.Deg2Rad * 0.5f; // Roll: rotacion en torno al eje longitudinal (ej: inclinacion lateral)
+            float roll = z * Mathf.Deg2Rad * 0.5f;  // Roll: rotacion en torno al eje longitudinal (ej: inclinacion lateral)
 
             // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la farmula para pasar de Euler a cuaternion
             // utiliza angulos medios. La representacion de cuaterniones se basa en la mitad del angulo de rotacion en cada eje.
@@ -227,9 +227,7 @@ namespace Quat
             float cosRoll = Mathf.Cos(roll);
             float sinRoll = Mathf.Sin(roll);
 
-            // Crear la instancia del cuaternion resultante
             MyQuat newQuat = new MyQuat();
-
             // El cuaternion se compone de cuatro componentes: W, X, Y, Z.
 
             // Estas formulas provienen de la composicion de rotaciones individuales y la definicion del cuaternion a partir de Euler.
