@@ -81,12 +81,11 @@ namespace Plane
                                 if (intersectionPoint == Vec3.Back) continue; //no intersection case
 
                                 //checks if point is inside triangle
-                                if (IsPointInsideTriangle(intersectionPoint, trianglesObj[i * 3],
-                                        trianglesObj[i * 3 + 1], trianglesObj[i * 3 + 2]))
-                                {
-                                    collisions++;
-                                    break;
-                                }
+                                if (!IsPointInsideTriangle(intersectionPoint, trianglesObj[i * 3],
+                                        trianglesObj[i * 3 + 1], trianglesObj[i * 3 + 2])) continue;
+                                
+                                collisions++;
+                                break;
                             }
                         }
 
@@ -102,11 +101,11 @@ namespace Plane
             Vec3 planeNormal = plane.Normal;
             Vec3 planePoint = planeNormal * -plane.Distance;
 
-            Vec3 lineEnd = Vec3.Down; //uses this vec3 as reference because its outside of the mesh
+            Vec3 lineEnd = Vec3.Down; // uses this vec3 as reference because its outside of the mesh
 
-            //calculates distance between points and start
+            // calculates distance between points and start
             float distance1 = Vec3.Dot(planePoint - lineStart, planeNormal);
-            //calculates direction of line compared to plane
+            // calculates direction of line compared to plane
             float distance2 = Vec3.Dot(planeNormal, lineEnd - lineStart);
 
             if (distance2 == 0) // line is parallel to plane
@@ -116,7 +115,7 @@ namespace Plane
             }
 
             float distance3 = distance1 / distance2;
-            //distance between start point and intersection point
+            // distance between start point and intersection point
             intersectionPoint = lineStart + (lineEnd - lineStart) * distance3;
             if (distance3 < 0 || distance3 > 1) // intersection point is not on the line segment
             {
@@ -126,7 +125,7 @@ namespace Plane
             return true;
         }
 
-        //barycentric coordinates method to calculate if point is inside triangle
+        // barycentric coordinates method to calculate if point is inside triangle
         private bool IsPointInsideTriangle(Vec3 point, Vec3 v1, Vec3 v2, Vec3 v3)
         {
             Vec3 v1V2 = v2 - v1;

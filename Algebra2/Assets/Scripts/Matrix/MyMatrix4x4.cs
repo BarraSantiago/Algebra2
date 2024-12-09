@@ -168,9 +168,10 @@ namespace Matrix
         /// </summary>
         /// <returns> El vector que representa la escala resultante </returns>
         /// <remarks>
-        /// Esta funcion calcula la escala resultante de la matriz de transformacion. La matriz de transformacion puede incluir una combinacion de rotacion, escala y traslacion.
-        /// La escala resultante es el factor de cambio en el tamaño de un objeto despues de aplicar la matriz de transformacion.
-        /// Esta funcion devuelve la escala "aparente" del objeto en el espacio del mundo, que puede verse afectada por la jerarquia de transformacion.
+        /// Esta funcion calcula la escala resultante de la matriz de transformacion. La matriz de transformacion puede
+        /// incluir una combinacion de rotacion, escala y traslacion. La escala resultante es el factor de cambio en el
+        /// tamaño de un objeto despues de aplicar la matriz de transformacion. Esta funcion devuelve la escala
+        /// "aparente" del objeto en el espacio del mundo, que puede verse afectada por la jerarquia de transformacion.
         /// </remarks>
         public Vec3 lossyScale
         {
@@ -232,7 +233,8 @@ namespace Matrix
             get
             {
                 // Calcula el determinante de la matriz
-                // El determinante de una matriz de 4x4 se calcula utilizando una formula especifica que implica sumas y restas de productos de elementos de la matriz.
+                // El determinante de una matriz de 4x4 se calcula utilizando una formula especifica que implica sumas y
+                // restas de productos de elementos de la matriz.
                 // Esta funcion implementa esa formula para calcular el determinante de la matriz.
 
                 float det = 0f;
@@ -270,9 +272,9 @@ namespace Matrix
 
                 MyMatrix4x4 transposedMatrix = new MyMatrix4x4();
 
-                for (int row = 0; row < 4; row++)
+                for (int row = 0; row < MaxRows; row++)
                 {
-                    for (int col = 0; col < 4; col++)
+                    for (int col = 0; col < MaxColumns; col++)
                     {
                         transposedMatrix[row, col] = this[col, row];
                     }
@@ -293,9 +295,6 @@ namespace Matrix
             get
             {
                 // Calcula la inversa de la matriz
-                // La inversa de una matriz se calcula utilizando una serie de operaciones matematicas especificas.
-                // Esta funcion implementa esas operaciones para calcular la matriz inversa.
-
                 float det = determinant;
 
                 // Verifica si la matriz es singular (determinante igual a cero)
@@ -306,7 +305,6 @@ namespace Matrix
 
                 MyMatrix4x4 inverseMatrix = new MyMatrix4x4();
 
-                // Calcula la inversa utilizando la formula matematica
                 inverseMatrix[0, 0] = (this[1, 1] * (this[2, 2] * this[3, 3] - this[2, 3] * this[3, 2]) -
                                        this[1, 2] * (this[2, 1] * this[3, 3] - this[2, 3] * this[3, 1]) +
                                        this[1, 3] * (this[2, 1] * this[3, 2] - this[2, 2] * this[3, 1])) / det;
@@ -392,25 +390,26 @@ namespace Matrix
             MyMatrix4x4 rotated = new MyMatrix4x4();
 
             // Se asignan los valores calculados de la matriz de rotacion, la matriz resultante representa la transformacion de rotacion.
+            
             rotated[0, 0] = 1.0f - num5 + num6; // Factor de escala de la rotacion al rededor del eje X
-            rotated[0, 1] = num7 - num12; // Seno de rotacion del eje Y
-            rotated[0, 2] = num8 + num11; // Seno de rotacion del eje Z
-            rotated[0, 3] = 0.0f; // Traslacion en el eje X (no hay ninguna translacion)
+            rotated[0, 1] = num7 - num12;       // Seno de rotacion del eje Y
+            rotated[0, 2] = num8 + num11;       // Seno de rotacion del eje Z
+            rotated[0, 3] = 0.0f;               // Traslacion en el eje X (no hay ninguna translacion)
 
-            rotated[1, 0] = num7 + num12; // Seno de la rotacion del eje X
+            rotated[1, 0] = num7 + num12;       // Seno de la rotacion del eje X
             rotated[1, 1] = 1.0f - num4 + num6; // Factor de escala de la rotacion al rededor del eje Y 
-            rotated[1, 2] = num9 - num10; // Seno de rotacion del eje Z
-            rotated[1, 3] = 0.0f; // Traslacion en el eje Y (no hay ninguna translacion)
+            rotated[1, 2] = num9 - num10;       // Seno de rotacion del eje Z
+            rotated[1, 3] = 0.0f;               // Traslacion en el eje Y (no hay ninguna translacion)
 
-            rotated[2, 0] = num8 - num11; // Seno de rotacion del eje X
-            rotated[2, 1] = num9 + num10; // Seno de rotacion del eje Y
+            rotated[2, 0] = num8 - num11;       // Seno de rotacion del eje X
+            rotated[2, 1] = num9 + num10;       // Seno de rotacion del eje Y
             rotated[2, 2] = 1.0f - num4 + num5; // Factor de escala de la rotacion al rededor del eje Z
-            rotated[2, 3] = 0.0f; // Traslacion en el eje Z (no hay ninguna translacion)
+            rotated[2, 3] = 0.0f;               // Traslacion en el eje Z (no hay ninguna translacion)
 
-            rotated[3, 0] = 0.0f; // Traslacion en el eje X (no hay ninguna translacion)
-            rotated[3, 1] = 0.0f; // Traslacion en el eje Y (no hay ninguna translacion)
-            rotated[3, 2] = 0.0f; // Traslacion en el eje Z (no hay ninguna translacion)
-            rotated[3, 3] = 1.0f; // Factor de escala (en 1 para no afectar la translacion)
+            rotated[3, 0] = 0.0f;               // Traslacion en el eje X (no hay ninguna translacion)
+            rotated[3, 1] = 0.0f;               // Traslacion en el eje Y (no hay ninguna translacion)
+            rotated[3, 2] = 0.0f;               // Traslacion en el eje Z (no hay ninguna translacion)
+            rotated[3, 3] = 1.0f;               // Factor de escala (en 1 para no afectar la translacion)
 
             return rotated;
         }
@@ -425,7 +424,6 @@ namespace Matrix
         {
             MyMatrix4x4 matrix = new MyMatrix4x4();
 
-            // Establecer los elementos de la matriz de escala
             matrix[0, 0] = vector.x;
             matrix[1, 1] = vector.y;
             matrix[2, 2] = vector.z;
@@ -573,8 +571,8 @@ namespace Matrix
         }
 
         /// <summary>
-        /// Multiplica un vector de punto por los primeros tres elementos de la matriz de transformacion (ignorando la ultima fila),
-        /// teniendo en cuenta la translacion pero sin considerar la perspectiva.
+        /// Multiplica un vector de punto por los primeros tres elementos de la matriz de transformacion (ignorando la
+        /// ultima fila), teniendo en cuenta la translacion pero sin considerar la perspectiva.
         /// </summary>
         /// <param name="point"> El vector de punto a multiplicar </param>
         /// <returns> El vector resultante que representa la posicion transformada del punto sin considerar la perspectiva </returns>
@@ -680,9 +678,10 @@ namespace Matrix
         /// <returns> True si la matriz de transformacion cumple con las condiciones de una transformacion valida </returns>
         /// <remarks>
         /// Esta funcion comprueba si la matriz de transformacion cumple con las condiciones de una transformacion valida.
-        /// Si representa una combinacion valida de traslacion, rotacion y escala. Para ser considerada valida, la matriz debe cumplir con
-        /// tener una matriz de rotacion ortogonal y una escala positiva. Es util para verificar si una matriz
-        /// de transformacion se ha construido correctamente y puede ser utilizada para transformar objetos de manera adecuada.
+        /// Si representa una combinacion valida de traslacion, rotacion y escala. Para ser considerada valida,
+        /// la matriz debe cumplir con tener una matriz de rotacion ortogonal y una escala positiva. Es util para
+        /// verificar si una matriz de transformacion se ha construido correctamente y puede ser utilizada para
+        /// transformar objetos de manera adecuada.
         /// </remarks>
         public bool ValidTRS()
         {
@@ -839,7 +838,8 @@ namespace Matrix
         /// <remarks>
         /// Esta funcion realiza la conversion de un cuaternion a una matriz de transformacion de 4x4.
         /// La matriz resultante representa la rotacion y la escala del cuaternion, pero no incluye la traslacion.
-        /// Para obtener una matriz completa de TRS (traslacion, rotacion y escala), se debe combinar esta matriz con una matriz de traslacion y una matriz de escala.
+        /// Para obtener una matriz completa de TRS (traslacion, rotacion y escala), se debe combinar esta matriz
+        /// con una matriz de traslacion y una matriz de escala.
         /// </remarks>
         public static MyMatrix4x4 QuaternionToMatrix(MyQuat q)
         {
