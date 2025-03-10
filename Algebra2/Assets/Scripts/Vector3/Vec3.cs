@@ -210,11 +210,14 @@ namespace CustomMath
 
             if (magProduct == 0) return 0;
 
+            // La division de "dot / magProduct" te da el coseno del angulo entre los dos vectores
+            // Se usa el arcocoseno para obtener el angulo de los vectores en radianes
             float angle = Mathf.Acos(dot / magProduct) * Mathf.Rad2Deg;
             return angle;
         }
 
 
+        // Clampea o restringe la magnitud de un vector a un valor maximo
         public static Vec3 ClampMagnitude(Vec3 vector, float maxLength)
         {
             if (vector.sqrMagnitude > maxLength * maxLength)
@@ -225,11 +228,13 @@ namespace CustomMath
             return vector;
         }
 
+        // Devuelve la distancia o lo que ocupa un vector en el espacio
         public static float Magnitude(Vec3 vector)
         {
             return Mathf.Sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
         }
 
+        // Producto cruz es un vector perpendicular a los dos vectores
         public static Vec3 Cross(Vec3 a, Vec3 b)
         {
             return new Vec3(
@@ -244,11 +249,15 @@ namespace CustomMath
             return Mathf.Sqrt(Mathf.Pow(b.x - a.x, 2) + Mathf.Pow(b.y - a.y, 2) + Mathf.Pow(b.z - a.z, 2));
         }
 
+        // Mide la similitud entre dos vectores o que tanto apuntan en la misma direccion.
+        // Devuelve positivo si el angulo entre ellos es menor a 90° y negativo si es entre 90° y 180°
+        // Devuelve el coseno del angulo entre los dos vectores
         public static float Dot(Vec3 a, Vec3 b)
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;
         }
 
+        // Interpola entre a y b relativo a t
         public static Vec3 Lerp(Vec3 a, Vec3 b, float t)
         {
             return a + (b - a) * Mathf.Clamp01(t);

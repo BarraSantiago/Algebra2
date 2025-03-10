@@ -218,8 +218,10 @@ namespace Quat
             float pitch = x * Mathf.Deg2Rad * 0.5f; // Pitch: rotacion en torno al eje lateral (ej: mirando hacia arriba/abajo)
             float roll = z * Mathf.Deg2Rad * 0.5f;  // Roll: rotacion en torno al eje longitudinal (ej: inclinacion lateral)
 
-            // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la farmula para pasar de Euler a cuaternion
+            // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la formula para pasar de Euler a cuaternion
             // utiliza angulos medios. La representacion de cuaterniones se basa en la mitad del angulo de rotacion en cada eje.
+            // Cos calcula la parte real del cuaternion
+            // Sen calcula la parte imaginaria del cuaternion
             float cosYaw = Mathf.Cos(yaw);
             float sinYaw = Mathf.Sin(yaw);
             float cosPitch = Mathf.Cos(pitch);
@@ -233,8 +235,6 @@ namespace Quat
             // Estas formulas provienen de la composicion de rotaciones individuales y la definicion del cuaternion a partir de Euler.
             // Basicamente, se toma cada rotacion parcial, se la convierte en un cuaternion y se multiplican entre si.
             // El resultado final es un cuaternion que representa la rotacion total sin los problemas de gimbal lock de las Euler.
-            
-            // Lo que estas lineas hacen es sintetizar esa combinacion trigonometrica en un solo paso.
             newQuat.W = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
             newQuat.X = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
             newQuat.Y = sinYaw * cosPitch * sinRoll + cosYaw * sinPitch * cosRoll;
@@ -352,7 +352,7 @@ namespace Quat
             // Normaliza el vector de direccion upwards relativa
             Vec3 newUpwards = upwards.Normalized;
 
-            // Calcula el producto cruz entre el vector de direccion hacia adelante predeterminado y el vector de direccion hacia adelante nuevo
+            // Calcula el producto cruz entre el vector de direccion hacia adelante predeterminado y el vector de direccion hacia arriva nuevo
             // Esto nos da el eje de rotacion necesario para alinear los vectores hacia adelante predeterminado y nuevo en la funcion
             Vec3 right = Vec3.Cross(newForward, newUpwards);
 

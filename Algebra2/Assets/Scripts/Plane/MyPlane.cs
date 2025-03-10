@@ -77,7 +77,9 @@ namespace Plane
 
         public Vec3 ClosestPointOnPlane(Vec3 point)
         {
+            // Calcula la distancia del punto al plano con el producto escalar
             float dist = Vec3.Dot(mNormal, point) + mDistance;
+            // Resta la normal del plano escalada por la distancia al punto
             return point - mNormal * dist;
         }
 
