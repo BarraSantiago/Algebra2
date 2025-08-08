@@ -170,6 +170,10 @@ namespace Quat
         {
             return AxisAngle(axis, angle);
         }
+        
+        // Se toma un eje de rotacion que esta definido por un vector normalizado 
+        // Se crea el cuaternion omando el coseno del angulo/2 como la parte real y el seno del angulo/2 como la parte imaginaria
+        // En 3D, esta parte imaginaria esta formada por 3 componentes 
 
         /// <summary>
         /// Crea un cuaternion que representa la rotacion alrededor del eje especificado y con el angulo especificado.
@@ -229,6 +233,7 @@ namespace Quat
             return Euler(euler.x, euler.y, euler.z);
         }
 
+        
         /// <summary>
         /// Toma 3 floats que representan un Vec3 de Euler en grados y devuelve un cuaternion que representa la misma rotacion.
         /// Las rotaciones de Euler se especifican usualmente en el orden (pitch, yaw, roll) o (x, y, z) dependiendo del contexto.
