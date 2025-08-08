@@ -3,6 +3,7 @@ using System;
 
 namespace CustomMath
 {
+    // Un vector 3D es una entidad matemática que representa una cantidad con magnitud y dirección en el espacio tridimensional.
     public struct Vec3 : IEquatable<Vec3>
     {
         #region Variables
@@ -203,6 +204,13 @@ namespace CustomMath
             return "X = " + x + "   Y = " + y + "   Z = " + z;
         }
 
+        /*
+        El producto punto mide qué tanto los vectores apuntan en la misma dirección
+        Las magnitudes normalizan esta medida para obtener solo la información direccional
+        La división dot/magProduct da el coseno del ángulo
+        El arcocoseno convierte el coseno de vuelta al ángulo original
+        cos(θ) = (a · b) / (|a| * |b|)
+        */
         public static float Angle(Vec3 from, Vec3 to)
         {
             float dot = Dot(from, to);
@@ -237,6 +245,10 @@ namespace CustomMath
         // Producto cruz es un vector perpendicular a los dos vectores
         public static Vec3 Cross(Vec3 a, Vec3 b)
         {
+			// Te da un vector perpendicular a los dos vectores
+			// Cual pongas primero afecta la direccion del vector resultante
+            // Si los vectores son paralelos el resultado es un vector nulo (0,0,0)
+			
             return new Vec3(
                 a.y * b.z - a.z * b.y,
                 a.z * b.x - a.x * b.z,
@@ -252,6 +264,9 @@ namespace CustomMath
         // Mide la similitud entre dos vectores o que tanto apuntan en la misma direccion.
         // Devuelve positivo si el angulo entre ellos es menor a 90° y negativo si es entre 90° y 180°
         // Devuelve el coseno del angulo entre los dos vectores
+        // Si son paralelos devuelve 0
+        // A * B = ∥A∥ ∥B∥ cos(θ)
+        // Solo cuando A y B son unitarios (magnitud 1) el producto punto es igual al coseno del angulo entre ellos
         public static float Dot(Vec3 a, Vec3 b)
         {
             return a.x * b.x + a.y * b.y + a.z * b.z;
@@ -303,7 +318,10 @@ namespace CustomMath
         /// </remarks>
         public static Vec3 Project(Vec3 vector, Vec3 onNormal)
         {
+            // El producto punto da cuanto del vector apunta en la direccion de la normal
             float dot = Dot(vector, onNormal);
+            // Multiplicar Normal por el producto punto escala la normal en esa direccion
+            // Es dividido por la magnitud al cuadrado para sacar la magnitud de la normal
             return onNormal * dot / onNormal.sqrMagnitude;
         }
 
@@ -315,9 +333,14 @@ namespace CustomMath
         /// <returns> The reflected vector.</returns>
         /// <remarks>
         /// This is commonly used in physics simulations and graphics to calculate the direction of a reflected ray or object.
+        /// Dot gives us the angle, and - 2 gives us the double of the angle facing the other way around.
+        /// By doing this to the normal we can multiply it to get the reflection.
         /// </remarks>
         public static Vec3 Reflect(Vec3 inDirection, Vec3 inNormal)
         {
+            // El negativo es porque es la direccion opuesta
+            // El *2 es porque queremos el doble del angulo conseguido en el producto punto
+            // *Normal vuelve el valor a un vector
             return inDirection - 2f * Dot(inDirection, inNormal) * inNormal;
         }
 

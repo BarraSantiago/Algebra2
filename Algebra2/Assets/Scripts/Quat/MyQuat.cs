@@ -10,11 +10,18 @@ namespace Quat
         #region Variables
 
         
-        // Un cuaternion es una extension matematica de numeros complejos que se utiliza para representar rotaciones 3D.
+        // Un cuaternion es una extension matematica de numeros complejos y un escalar que se utiliza para representar rotaciones 3D.
         // En graficos 3D, los cuaterniones son muy utiles porque evitan problemas como el bloqueo de gimbal (gimbal lock).
         // Esta compuesto por una parte escalar (W) y tres partes vectoriales (X Y Z). Se utilizan para evitar el bloqueo de cardan o gimbal.
         // Pueden sobrepasar el gimbal lock, que ocurre cuando los ejes X y Z estan en paralelo.
         // Tambien se usa para hacer operaciones que mantienen la continuidad y suavidad en las rotaciones.
+        // W es la parte escalar del cuaternion, que representa la rotacion alrededor de un eje en el espacio tridimensional.
+        
+        
+        // Un cuaternion es un numero imaginario de 3 dimensiones compuesto por un numero real y tres numeros imaginarios.
+        // Tiene 3 numeros imaginarios porque tiene 3 ejes de rotacion.
+        // En 2D, solo podes rotar sobre un eje, que es el eje Z, por eso solo hay un numero imaginario y uno real.
+        
         public float X { get; set; }
         public float Y { get; set; }
         public float Z { get; set; }
@@ -76,8 +83,7 @@ namespace Quat
 
         public static MyQuat identity = new MyQuat(0f, 0f, 0f, 1f);
 
-        // Matematicamente, cuando hablamos de cuaterniones y transformaciones, el espacio tridimensional se mapea a
-        // traves de estas divisiones triangulares. Esto puede ser util al visualizar rotaciones o calcular proyecciones.
+
 
 
         /// <summary>
@@ -92,12 +98,22 @@ namespace Quat
             // Esto puede interpretarse como "descomponer" la orientacion en componentes angulares especificas para cada eje.
             // La idea de proyeccion puede asociarse con la division espacial en triangulos, donde cada cara tiene su influencia en los calculos.
 
+            // Extraemos las componentes del cuaternion para calcular los angulos de Euler.
+            // X, Y, Z son las componentes vectoriales del cuaternion, y W es la componente escalar.
+            
             // Calcular la rotacion en Z (yaw), que corresponde al giro alrededor del eje Z.
-            // Matematicamente, se utiliza la funcion atan2 para manejar el angulo correctamente en todos los cuadrantes.
+            // Se calcula el angulo de rotacion en Z teniendo en cuenta las relaciones entre las componentes del cuaternion.
+            
+            // Tangente es la operacion que grafica una asintota vertical cada medio pi
+            // Arcotangente es la operacion inversa a la tangente, grafica una asintota horizontal
+            // Esta operacion se saca el angulo entre dos vectores y se pasa de radianes a grados euler
             float yaw = Mathf.Atan2(2 * X * Y + 2 * W * Z, 1 - 2 * X * X - 2 * Y * Y);
 
             // Calcular la rotacion en Y (pitch), que es el giro alrededor del eje Y.
             // Para este calculo se utiliza la funcion arcsen (Asin), que toma en cuenta la componente perpendicular al plano XZ.
+            
+            // El Seno es el coseno desfazado 90 grados o medio pi del Coseno, y el Arcosen es la operacion inversa al Seno.
+            
             float pitch = Mathf.Asin(2 * X * Z - 2 * W * Y);
 
             // Calcular la rotacion en X (roll), que corresponde al giro alrededor del eje X.
@@ -164,8 +180,15 @@ namespace Quat
         public static MyQuat AxisAngle(Vec3 axis, float angle)
         {
             // Calcula la mitad del angulo
-            float halfAngle = angle * 0.5f;
-            // Calcula el seno del angulo
+            // La mitad del angulo es importante porque los cuaterniones representan rotaciones en terminos de angulos medios.
+            // Al dividir el angulo por 2, se obtiene el angulo que se usara para calcular las componentes del cuaternion.
+            // Esto es porque un cuaternion representa una rotacion de 360 grados, y al dividir el angulo por 2
+            // se asegura que el cuaternion represente la rotacion completa de manera correcta.
+            
+            float halfAngle = angle * 0.5f * Mathf.Deg2Rad;
+            // El seno del angulo medio se utiliza para calcular las componentes del cuaternion.
+            // El seno es una funcion trigonometrica que relaciona el angulo con la longitud del cateto opuesto en un triangulo rectangulo.
+            // En este caso, el seno del angulo medio se usa para escalar las componentes del eje de rotacion.
             float sinHalfAngle = Mathf.Sin(halfAngle);
 
             // Se multiplican las componentes por el seno del angulo medio permitiendo que el cuaternion represente
@@ -174,6 +197,10 @@ namespace Quat
             newQuat.X = axis.x * sinHalfAngle;
             newQuat.Y = axis.y * sinHalfAngle;
             newQuat.Z = axis.z * sinHalfAngle;
+            // La componente W del cuaternion se calcula como el coseno del angulo medio.
+            // El coseno del angulo medio se utiliza para calcular la parte escalar del cuaternion.
+            // El coseno es una funcion trigonometrica que relaciona el angulo con la longitud del cateto adyacente en un triangulo rectangulo.
+            // En este caso, el coseno del angulo medio se usa para calcular la parte escalar del cuaternion.
             newQuat.W = Mathf.Cos(halfAngle);
 
             return newQuat;
@@ -221,7 +248,7 @@ namespace Quat
             // Calcular los valores trigonometricos de la mitad de los angulos. Esto se hace porque la formula para pasar de Euler a cuaternion
             // utiliza angulos medios. La representacion de cuaterniones se basa en la mitad del angulo de rotacion en cada eje.
             // Cos calcula la parte real del cuaternion
-            // Sen calcula la parte imaginaria del cuaternion
+            // Sin calcula la parte imaginaria del cuaternion
             float cosYaw = Mathf.Cos(yaw);
             float sinYaw = Mathf.Sin(yaw);
             float cosPitch = Mathf.Cos(pitch);
@@ -230,8 +257,7 @@ namespace Quat
             float sinRoll = Mathf.Sin(roll);
 
             MyQuat newQuat = new MyQuat();
-            // El cuaternion se compone de cuatro componentes: W, X, Y, Z.
-
+            
             // Estas formulas provienen de la composicion de rotaciones individuales y la definicion del cuaternion a partir de Euler.
             // Basicamente, se toma cada rotacion parcial, se la convierte en un cuaternion y se multiplican entre si.
             // El resultado final es un cuaternion que representa la rotacion total sin los problemas de gimbal lock de las Euler.
@@ -257,15 +283,19 @@ namespace Quat
             Vec3 toNormalized = toDirection.Normalized;
 
             // Calcular el producto cruzado entre los vectores de direccion normalizados
+            // El producto cruzado nos da un vector perpendicular a ambos vectores de direccion, que se usara como eje de rotacion.
             Vec3 rotationAxis = Vec3.Cross(fromNormalized, toNormalized);
 
             // Calcular el producto punto entre los vectores de direccion normalizados
+            // El producto punto nos da una medida de la alineacion entre los dos vectores de direccion.
             float dotProduct = Vec3.Dot(fromNormalized, toNormalized);
 
             // Calcular el angulo entre los vectores de direccion
+            // El angulo se calcula usando el arcocoseno del producto punto. Esto nos da el angulo en radianes entre los dos vectores.
             float angle = Mathf.Acos(dotProduct);
 
             // Crear el cuaternion a partir del angulo y el eje de rotacion
+            // El cuaternion se crea utilizando el eje de rotacion y el angulo calculado. Esto nos da un cuaternion que representa la rotacion
             MyQuat rotationQuat = AxisAngle(rotationAxis, angle);
 
             return rotationQuat;
@@ -353,22 +383,30 @@ namespace Quat
             Vec3 newUpwards = upwards.Normalized;
 
             // Calcula el producto cruz entre el vector de direccion hacia adelante predeterminado y el vector de direccion hacia arriva nuevo
+            // El producto cruz entre dos vectores da un vector perpendicular a ambos, que es el eje de rotacion.
             // Esto nos da el eje de rotacion necesario para alinear los vectores hacia adelante predeterminado y nuevo en la funcion
+            // de rotacion.
+            // Este eje de rotacion es importante porque nos permite calcular la rotacion necesaria para alinear los dos vectores.
             Vec3 right = Vec3.Cross(newForward, newUpwards);
 
             // Recalcula el vector upwards utilizando el producto cruz entre el vector de direccion hacia adelante y el vector hacia la derecha
+            // Esto asegura que el vector upwards recalculado sea perpendicular tanto al vector hacia adelante como al vector hacia la derecha.
             Vec3 recalculatedUpwards = Vec3.Cross(right, newForward);
 
-            // Normaliza el vector upwards recalculado para asegurarse de que tenga una longitud/magnitud de 1
             Vec3 normalizedUpwards = recalculatedUpwards.Normalized;
 
             // Calcula el angulo de rotacion entre el vector upwards recalculado y el vector upwards original
+            // Este angulo es importante porque nos permite determinar la cantidad de rotacion necesaria para alinear los dos vectores.
             float rotationAngle = Vec3.Angle(newUpwards, normalizedUpwards);
 
             // Calcula el eje de rotacion utilizando el producto cruz entre el vector upwards recalculado y el vector upwards original
+            // El eje de rotacion es el vector alrededor del cual se realizara la rotacion para alinear los dos vectores.
+            // El producto cruz entre dos vectores da un vector perpendicular a ambos, que es el eje de rotacion.
             Vec3 rotationAxis = Vec3.Cross(newUpwards, normalizedUpwards);
 
             // Crea un cuaternion que representa la rotacion utilizando el eje de rotacion y el angulo calculados
+            // El cuaternion se crea utilizando la funcion AxisAngle, que toma un eje de rotacion y un angulo en radianes.
+            // El cuaternion resultante representa la rotacion necesaria para alinear los vectores hacia adelante y upwards.
             MyQuat rotationQuat = AxisAngle(rotationAxis, rotationAngle);
 
             return rotationQuat;
@@ -405,12 +443,14 @@ namespace Quat
             float maxRadiansDelta = maxDegreesDelta * Mathf.Deg2Rad;
 
             // Calcula el angulo entre los cuaterniones de inicio y fin
+            // El angulo se calcula utilizando la funcion Angle, que devuelve el angulo en radianes entre dos cuaterniones.
+            // Este angulo es importante porque nos permite determinar la cantidad de rotacion necesaria para alinear los cuaterniones.
             float angle = Angle(from, to);
 
             // Limita el angulo a rotar segun el angulo maximo de rotacion
             float t = Mathf.Min(1f, maxRadiansDelta / angle);
 
-            // Interpola linealmente entre los cuaterniones de inicio y objetivo segun el factor de interpolacion t
+            // Interpola esfericamente entre los cuaterniones de inicio y objetivo segun el factor de interpolacion t
             MyQuat result = SlerpUnclamped(from, to, t);
 
             // Normaliza el cuaternion resultante para asegurar que tenga una longitud/magnitud de 1
@@ -444,9 +484,11 @@ namespace Quat
         public static MyQuat SlerpUnclamped(MyQuat a, MyQuat b, float t)
         {
             // Calcula el producto punto entre los cuaterniones de inicio y objetivo
+            // El producto punto nos da una medida de la alineacion entre los dos cuaterniones.
             float dotProduct = Dot(a, b);
 
             // Si el producto punto es negativo, invierte uno de los cuaterniones
+            // Esto se hace para asegurar que la interpolacion sea la mas corta posible entre los dos cuaterniones.
             if (dotProduct < 0f)
             {
                 b = Inverse(b);
@@ -552,6 +594,10 @@ namespace Quat
         public void ToAngleAxis(out float angle, out Vec3 axis)
         {
             // Calcula el angulo de rotacion
+            // La componente W del cuaternion representa la parte escalar de la rotacion, y al aplicar el arcocoseno
+            // obtenemos el angulo de rotacion en radianes.
+            // El angulo resultante es el doble del angulo real de rotacion,
+            // por lo que se multiplica por 2 para obtener el angulo correcto.
             angle = 2 * Mathf.Acos(W);
 
             // Calcula el factor de escala para obtener los componentes del eje de rotacion
@@ -614,17 +660,18 @@ namespace Quat
         /// <summary>
         /// Realiza la multiplicacion de dos cuaterniones.
         /// </summary>
-        /// <param name="lhs"> Primer cuaternion </param>
-        /// <param name="rhs"> Segundo cuaternion </param>
+        /// <param name="quat1"> Primer cuaternion </param>
+        /// <param name="quat2"> Segundo cuaternion </param>
         /// <returns> El resultado de la multiplicacion de los dos cuaterniones </returns>
-        public static MyQuat operator *(MyQuat lhs, MyQuat rhs)
+        public static MyQuat operator *(MyQuat quat1, MyQuat quat2)
         {
+            // Esta cuenta es asi porque cada componente del cuaternion resultante depende de todos los componentes de los cuaterniones originales 
             MyQuat quat = new MyQuat
             {
-                W = (lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z),
-                X = (lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y),
-                Y = (lhs.Y * rhs.W + lhs.W * rhs.Y + lhs.Z * rhs.X - lhs.X * rhs.Z),
-                Z = (lhs.Z * rhs.W + lhs.W * rhs.Z - lhs.Y * rhs.X + lhs.X * rhs.Y)
+                W = (quat1.W * quat2.W - quat1.X * quat2.X - quat1.Y * quat2.Y - quat1.Z * quat2.Z),
+                X = (quat1.W * quat2.X + quat1.X * quat2.W + quat1.Y * quat2.Z - quat1.Z * quat2.Y),
+                Y = (quat1.Y * quat2.W + quat1.W * quat2.Y + quat1.Z * quat2.X - quat1.X * quat2.Z),
+                Z = (quat1.Z * quat2.W + quat1.W * quat2.Z - quat1.Y * quat2.X + quat1.X * quat2.Y)
             };
 
             return quat;
