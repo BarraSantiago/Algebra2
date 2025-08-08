@@ -624,9 +624,15 @@ namespace Quat
         // La multiplicacion con un vector permite aplicar una rotacion en 3D sin sufrir los problemas de interpolacion
         // o gimbal lock que ocurren con los ángulos de Euler.
         
-        // Esto puede usarse para rotar un punto en el espacio 3D utilizando un cuaternion que representa
-        // una orientacion o transformacion rotacional.
-
+        // Es una multipliacion matricial que tiene en cuenta 3 partes imaginarias
+        
+        // Cuando se multiplican, se aplica la rotacion del cuaternion al vector, transformando su posicion en el espacio tridimensional.
+        // El cuaternon es el desplazamiento del origen, osea W, y cuanto esta rotado cada angulo de la matriz identidad en cada eje
+        // las componentes imaginarias I J K son el despeje de cada rotacion de eje, se puede multiplicar de las componentes al punto
+        // y despues aplicar el producto escalar o producto punto, que es el coseno del angulo entre el vector y el cuaternion.
+        // Una vez que tengo cuanto esta rotado cada eje, tengo que aplicar esas 3 rotacionenes a el desplazamiento del origen, que es W.
+        // Se estan generando 3 numeros complejos bidimensionales que representan las rotaciones en cada eje, y combinados represnetan un numero complejo tridimensional
+        
         /// <summary>
         /// Realiza la multiplicacion de un cuaternion por un vector, aplicando una rotacion al vector original.
         /// </summary>
@@ -642,9 +648,10 @@ namespace Quat
             float num2 = rotation.Z * point.x - rotation.X * point.z; // Producto cruzado parcial en Y
             float num3 = rotation.X * point.y - rotation.Y * point.x; // Producto cruzado parcial en Z
 
-            // Paso 2: Calcular el producto escalar entre el vector y el cuaternion.
+            // Paso 2: Calcular el producto punto entre el vector y el cuaternion.
             // Este termino asegura que la rotacion sea correctamente aplicada considerando la "magnitud" del cuaternion.
-            float num4 = rotation.X * point.x + rotation.Y * point.y + rotation.Z * point.z; // Producto escalar
+            // Osea esta consiguiendo el coseno del angulo
+            float num4 = rotation.X * point.x + rotation.Y * point.y + rotation.Z * point.z; // Producto escalar o producto punto
 
             // Paso 3: Calcular los componentes del vector resultante tras la rotacion.
             // Aqui aplicamos las reglas completas de multiplicacion de cuaterniones, considerando la orientacion
